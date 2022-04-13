@@ -1,4 +1,4 @@
-val javaLangVersion = 17
+val javaLangVersion = 18
 val lwjglVersion = "3.3.1"
 
 plugins {
@@ -31,6 +31,10 @@ val lwjglNatives = Pair(
 
 repositories {
     mavenCentral()
+}
+
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
+    kotlinOptions.freeCompilerArgs += "-Xcontext-receivers"
 }
 
 java {

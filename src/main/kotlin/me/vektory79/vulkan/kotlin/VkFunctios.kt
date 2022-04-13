@@ -7,21 +7,22 @@ import org.lwjgl.vulkan.VkInstance
 import org.lwjgl.vulkan.VkInstanceCreateInfo
 import org.lwjgl.vulkan.VkLayerProperties
 
+context(MemoryStack)
 fun vkCreateInstance(
-    stack: MemoryStack,
-    init: (stack: MemoryStack) -> VkInstanceCreateInfo
+    init: context(MemoryStack) () -> VkInstanceCreateInfo
 ): VkInstance {
-    val createInfo = init(stack)
+    val createInfo = init(this@MemoryStack)
     // We need to retrieve the pointer of the created instance
-    val instancePtr = stack.mallocPointer(1)
+    val instancePtr = mallocPointer(1)
     checkVkResult(vkCreateInstance(createInfo, null, instancePtr))
     return VkInstance(instancePtr[0], createInfo)
 }
 
-fun vkGetInstanceLayerProperties(stack: MemoryStack): VkLayerProperties.Buffer {
-    val layerCount = stack.ints(0)
+context(MemoryStack)
+fun vkGetInstanceLayerProperties(): VkLayerProperties.Buffer {
+    val layerCount = ints(0)
     vkEnumerateInstanceLayerProperties(layerCount, null)
-    val availableLayers: VkLayerProperties.Buffer = VkLayerProperties.malloc(layerCount[0], stack)
+    val availableLayers: VkLayerProperties.Buffer = VkLayerProperties.malloc(layerCount[0], this@MemoryStack)
     vkEnumerateInstanceLayerProperties(layerCount, availableLayers)
     return availableLayers
 }

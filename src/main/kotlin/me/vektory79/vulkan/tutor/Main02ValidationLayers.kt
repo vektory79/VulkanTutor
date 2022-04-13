@@ -1,17 +1,10 @@
 package me.vektory79.vulkan.tutor
 
-import me.vektory79.vulkan.kotlin.apiVersion
-import me.vektory79.vulkan.kotlin.applicationVersion
-import me.vektory79.vulkan.kotlin.createVkApplicationInfo
-import me.vektory79.vulkan.kotlin.createVkInstanceCreateInfo
-import me.vektory79.vulkan.kotlin.engineVersion
-import me.vektory79.vulkan.kotlin.pApplicationInfo
-import me.vektory79.vulkan.kotlin.pApplicationName
-import me.vektory79.vulkan.kotlin.pEngineName
-import me.vektory79.vulkan.kotlin.ppEnabledExtensionNames
-import me.vektory79.vulkan.kotlin.ppEnabledLayerNames
+import me.vektory79.vulkan.kotlin.stackPush
+import me.vektory79.vulkan.kotlin.vkApplicationInfo
 import me.vektory79.vulkan.kotlin.vkCreateInstance
 import me.vektory79.vulkan.kotlin.vkGetInstanceLayerProperties
+import me.vektory79.vulkan.kotlin.vkInstanceCreateInfo
 import org.lwjgl.PointerBuffer
 import org.lwjgl.glfw.GLFW.GLFW_CLIENT_API
 import org.lwjgl.glfw.GLFW.GLFW_FALSE
@@ -26,7 +19,6 @@ import org.lwjgl.glfw.GLFW.glfwWindowHint
 import org.lwjgl.glfw.GLFW.glfwWindowShouldClose
 import org.lwjgl.glfw.GLFWVulkan.glfwGetRequiredInstanceExtensions
 import org.lwjgl.system.MemoryStack
-import org.lwjgl.system.MemoryStack.stackPush
 import org.lwjgl.vulkan.EXTDebugUtils
 import org.lwjgl.vulkan.VK10
 import org.lwjgl.vulkan.VK10.VK_API_VERSION_1_0
@@ -85,31 +77,32 @@ class HelloTriangleApplication02 {
             throw RuntimeException("Validation requested but not supported")
         }
 
-        stackPush().use { stack ->
-            instance = vkCreateInstance(stack) {
-                createVkInstanceCreateInfo(stack) {
-                    pApplicationInfo = createVkApplicationInfo(stack) {
-                        pApplicationName = stack.UTF8Safe("Hello Triangle")
+        stackPush {
+            instance = vkCreateInstance {
+                vkInstanceCreateInfo {
+                    pApplicationInfo = vkApplicationInfo {
+                        pApplicationName = UTF8("Hello Triangle")
                         applicationVersion = VK_MAKE_VERSION(1, 0, 0)
-                        pEngineName = stack.UTF8Safe("No Engine")
+                        pEngineName = UTF8("No Engine")
                         engineVersion = VK_MAKE_VERSION(1, 0, 0)
                         apiVersion = VK_API_VERSION_1_0
                     }
                     // enabledExtensionCount is implicitly set when you call ppEnabledExtensionNames
-                    ppEnabledExtensionNames = getRequiredExtensions(stack)
+                    ppEnabledExtensionNames = getRequiredExtensions()
                     // same with enabledLayerCount
-                    ppEnabledLayerNames = if (ENABLE_VALIDATION_LAYERS) validationLayersAsPointerBuffer(stack) else null
+                    ppEnabledLayerNames = if (ENABLE_VALIDATION_LAYERS) validationLayersAsPointerBuffer() else null
                 }
             }
         }
     }
 
-    private fun getRequiredExtensions(stack: MemoryStack): PointerBuffer? {
+    context(MemoryStack)
+        private fun getRequiredExtensions(): PointerBuffer? {
         val glfwExtensions = glfwGetRequiredInstanceExtensions()
-        if (ENABLE_VALIDATION_LAYERS) {
-            val extensions = stack.mallocPointer(glfwExtensions!!.capacity() + 1)
+        if (ENABLE_VALIDATION_LAYERS && glfwExtensions != null) {
+            val extensions = mallocPointer(glfwExtensions.capacity() + 1)
             extensions.put(glfwExtensions)
-            extensions.put(stack.UTF8(EXTDebugUtils.VK_EXT_DEBUG_UTILS_EXTENSION_NAME))
+            extensions.put(UTF8(EXTDebugUtils.VK_EXT_DEBUG_UTILS_EXTENSION_NAME))
 
             // Rewind the buffer before returning it to reset its position back to 0
             return extensions.rewind()
@@ -117,17 +110,18 @@ class HelloTriangleApplication02 {
         return glfwExtensions
     }
 
-    private fun validationLayersAsPointerBuffer(stack: MemoryStack): PointerBuffer? {
-        val buffer = stack.mallocPointer(VALIDATION_LAYERS.size)
+    context(MemoryStack)
+        private fun validationLayersAsPointerBuffer(): PointerBuffer? {
+        val buffer = mallocPointer(VALIDATION_LAYERS.size)
         VALIDATION_LAYERS.stream()
-            .map(stack::UTF8)
+            .map(this@MemoryStack::UTF8)
             .forEach(buffer::put)
         return buffer.rewind()
     }
 
     private fun checkValidationLayerSupport(): Boolean {
-        stackPush().use { stack ->
-            val availableLayers = vkGetInstanceLayerProperties(stack)
+        stackPush {
+            val availableLayers = vkGetInstanceLayerProperties()
             val availableLayerNames = availableLayers.stream()
                 .map { obj: VkLayerProperties -> obj.layerNameString() }
                 .collect(Collectors.toSet())
