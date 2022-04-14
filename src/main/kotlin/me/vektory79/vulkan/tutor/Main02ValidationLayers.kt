@@ -2,7 +2,10 @@ package me.vektory79.vulkan.tutor
 
 import me.vektory79.vulkan.kotlin.stackPush
 import me.vektory79.vulkan.kotlin.vkApplicationInfo
+import me.vektory79.vulkan.kotlin.vkCreateDebugUtilsMessengerEXT
 import me.vektory79.vulkan.kotlin.vkCreateInstance
+import me.vektory79.vulkan.kotlin.vkDebugUtilsMessengerCreateInfoEXT
+import me.vektory79.vulkan.kotlin.vkDestroyDebugUtilsMessengerEXT
 import me.vektory79.vulkan.kotlin.vkGetInstanceLayerProperties
 import me.vektory79.vulkan.kotlin.vkInstanceCreateInfo
 import org.lwjgl.PointerBuffer
@@ -19,26 +22,35 @@ import org.lwjgl.glfw.GLFW.glfwWindowHint
 import org.lwjgl.glfw.GLFW.glfwWindowShouldClose
 import org.lwjgl.glfw.GLFWVulkan.glfwGetRequiredInstanceExtensions
 import org.lwjgl.system.MemoryStack
-import org.lwjgl.vulkan.EXTDebugUtils
-import org.lwjgl.vulkan.VK10
+import org.lwjgl.vulkan.EXTDebugUtils.VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT
+import org.lwjgl.vulkan.EXTDebugUtils.VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT
+import org.lwjgl.vulkan.EXTDebugUtils.VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT
+import org.lwjgl.vulkan.EXTDebugUtils.VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT
+import org.lwjgl.vulkan.EXTDebugUtils.VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT
+import org.lwjgl.vulkan.EXTDebugUtils.VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT
+import org.lwjgl.vulkan.EXTDebugUtils.VK_EXT_DEBUG_UTILS_EXTENSION_NAME
 import org.lwjgl.vulkan.VK10.VK_API_VERSION_1_0
+import org.lwjgl.vulkan.VK10.VK_FALSE
 import org.lwjgl.vulkan.VK10.VK_MAKE_VERSION
 import org.lwjgl.vulkan.VK10.vkDestroyInstance
 import org.lwjgl.vulkan.VkDebugUtilsMessengerCallbackDataEXT
+import org.lwjgl.vulkan.VkDebugUtilsMessengerCallbackEXTI
 import org.lwjgl.vulkan.VkInstance
 import org.lwjgl.vulkan.VkLayerProperties
 import java.util.stream.Collectors
 
+@Suppress("UNUSED_PARAMETER")
 private fun debugCallback(messageSeverity: Int, messageType: Int, pCallbackData: Long, pUserData: Long): Int {
     val callbackData = VkDebugUtilsMessengerCallbackDataEXT.create(pCallbackData)
     System.err.println("Validation layer: " + callbackData.pMessageString())
-    return VK10.VK_FALSE
+    return VK_FALSE
 }
 
 class HelloTriangleApplication02 {
 
     private var instance: VkInstance? = null
     private var window: Long = 0
+    private var debugMessenger: Long = 0
 
     fun run() {
         initWindow()
@@ -56,6 +68,7 @@ class HelloTriangleApplication02 {
 
     private fun initVulkan() {
         createInstance()
+        setupDebugMessenger()
     }
 
     private fun mainLoop() {
@@ -65,6 +78,9 @@ class HelloTriangleApplication02 {
     }
 
     private fun cleanup() {
+        if (ENABLE_VALIDATION_LAYERS) {
+            vkDestroyDebugUtilsMessengerEXT(instance, debugMessenger, null)
+        }
         instance?.also {
             vkDestroyInstance(it, null)
         }
@@ -102,7 +118,7 @@ class HelloTriangleApplication02 {
         if (ENABLE_VALIDATION_LAYERS && glfwExtensions != null) {
             val extensions = mallocPointer(glfwExtensions.capacity() + 1)
             extensions.put(glfwExtensions)
-            extensions.put(UTF8(EXTDebugUtils.VK_EXT_DEBUG_UTILS_EXTENSION_NAME))
+            extensions.put(UTF8(VK_EXT_DEBUG_UTILS_EXTENSION_NAME))
 
             // Rewind the buffer before returning it to reset its position back to 0
             return extensions.rewind()
@@ -117,6 +133,26 @@ class HelloTriangleApplication02 {
             .map(this@MemoryStack::UTF8)
             .forEach(buffer::put)
         return buffer.rewind()
+    }
+
+    private fun setupDebugMessenger() {
+        if (!ENABLE_VALIDATION_LAYERS) return
+        stackPush {
+            debugMessenger = vkCreateDebugUtilsMessengerEXT(
+                instance,
+                vkDebugUtilsMessengerCreateInfoEXT {
+                    messageSeverity =
+                        VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT or
+                            VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT or
+                            VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT
+                    messageType =
+                        VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT or
+                            VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT or
+                            VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT
+                    pfnUserCallback = VkDebugUtilsMessengerCallbackEXTI(::debugCallback)
+                }
+            )
+        }
     }
 
     private fun checkValidationLayerSupport(): Boolean {

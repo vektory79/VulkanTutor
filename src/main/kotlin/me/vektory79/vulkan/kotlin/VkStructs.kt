@@ -3,8 +3,11 @@ package me.vektory79.vulkan.kotlin
 import org.lwjgl.PointerBuffer
 import org.lwjgl.system.MemoryStack
 import org.lwjgl.system.Struct
+import org.lwjgl.vulkan.EXTDebugUtils.VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT
 import org.lwjgl.vulkan.VK10
 import org.lwjgl.vulkan.VkApplicationInfo
+import org.lwjgl.vulkan.VkDebugUtilsMessengerCallbackEXTI
+import org.lwjgl.vulkan.VkDebugUtilsMessengerCreateInfoEXT
 import org.lwjgl.vulkan.VkInstanceCreateInfo
 import java.nio.ByteBuffer
 
@@ -27,7 +30,10 @@ context(MemoryStack)
     @VkStruct
 fun vkApplicationInfo(init: KVkApplicationInfo.() -> Unit): VkApplicationInfo =
     calloc(
-        { KVkApplicationInfo(VkApplicationInfo.calloc().apply { sType(VK10.VK_STRUCTURE_TYPE_APPLICATION_INFO) }) },
+        {
+            KVkApplicationInfo(
+                VkApplicationInfo.calloc(this@MemoryStack).apply { sType(VK10.VK_STRUCTURE_TYPE_APPLICATION_INFO) })
+        },
         init
     )
 
@@ -75,7 +81,8 @@ fun vkInstanceCreateInfo(init: KVkInstanceCreateInfo.() -> Unit): VkInstanceCrea
     calloc(
         {
             KVkInstanceCreateInfo(
-                VkInstanceCreateInfo.calloc().apply { sType(VK10.VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO) })
+                VkInstanceCreateInfo.calloc(this@MemoryStack)
+                    .apply { sType(VK10.VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO) })
         },
         init
     )
@@ -99,5 +106,58 @@ value class KVkInstanceCreateInfo(override val struct: VkInstanceCreateInfo) : K
         get() = struct.ppEnabledExtensionNames()
         set(value) {
             struct.ppEnabledExtensionNames(value)
+        }
+}
+
+context(MemoryStack)
+    @VkStruct
+fun vkDebugUtilsMessengerCreateInfoEXT(init: KVkDebugUtilsMessengerCreateInfoEXT.() -> Unit): VkDebugUtilsMessengerCreateInfoEXT =
+    calloc(
+        {
+            KVkDebugUtilsMessengerCreateInfoEXT(
+                VkDebugUtilsMessengerCreateInfoEXT.calloc(this@MemoryStack)
+                    .apply { sType(VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT) })
+        },
+        init
+    )
+
+@VkStruct
+@JvmInline
+value class KVkDebugUtilsMessengerCreateInfoEXT(override val struct: VkDebugUtilsMessengerCreateInfoEXT) :
+    KVkStruct<VkDebugUtilsMessengerCreateInfoEXT> {
+    var pNext: Long
+        get() = struct.pNext()
+        set(value) {
+            struct.pNext(value)
+        }
+
+    var flags: Int
+        get() = struct.flags()
+        set(value) {
+            struct.flags(value)
+        }
+
+    var messageSeverity: Int
+        get() = struct.messageSeverity()
+        set(value) {
+            struct.messageSeverity(value)
+        }
+
+    var messageType: Int
+        get() = struct.messageType()
+        set(value) {
+            struct.messageType(value)
+        }
+
+    var pfnUserCallback: VkDebugUtilsMessengerCallbackEXTI
+        get() = struct.pfnUserCallback()
+        set(value) {
+            struct.pfnUserCallback(value)
+        }
+
+    var pUserData: Long
+        get() = struct.pUserData()
+        set(value) {
+            struct.pUserData(value)
         }
 }
