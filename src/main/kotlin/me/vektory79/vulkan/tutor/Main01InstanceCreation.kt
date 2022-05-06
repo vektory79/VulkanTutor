@@ -1,5 +1,6 @@
 package me.vektory79.vulkan.tutor
 
+import me.vektory79.vulkan.kotlin.KVkInstance
 import me.vektory79.vulkan.kotlin.stackPush
 import me.vektory79.vulkan.kotlin.vkApplicationInfo
 import me.vektory79.vulkan.kotlin.vkCreateInstance
@@ -18,12 +19,10 @@ import org.lwjgl.glfw.GLFW.glfwWindowShouldClose
 import org.lwjgl.glfw.GLFWVulkan.glfwGetRequiredInstanceExtensions
 import org.lwjgl.vulkan.VK10.VK_API_VERSION_1_0
 import org.lwjgl.vulkan.VK10.VK_MAKE_VERSION
-import org.lwjgl.vulkan.VK10.vkDestroyInstance
-import org.lwjgl.vulkan.VkInstance
 
 class HelloTriangleApplication01 {
 
-    private var instance: VkInstance? = null
+    private var instance: KVkInstance? = null
     private var window: Long = 0
 
     fun run() {
@@ -51,9 +50,7 @@ class HelloTriangleApplication01 {
     }
 
     private fun cleanup() {
-        instance?.also {
-            vkDestroyInstance(it, null)
-        }
+        instance?.destroy()
         glfwDestroyWindow(window)
         glfwTerminate()
     }

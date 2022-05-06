@@ -28,12 +28,11 @@ import org.lwjgl.vulkan.EXTDebugUtils.VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EX
 import org.lwjgl.vulkan.EXTDebugUtils.VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT
 import org.lwjgl.vulkan.EXTDebugUtils.VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT
 import org.lwjgl.vulkan.EXTDebugUtils.VK_EXT_DEBUG_UTILS_EXTENSION_NAME
-import org.lwjgl.vulkan.VK10.VK_API_VERSION_1_0
-import org.lwjgl.vulkan.VK10.VK_FALSE
-import org.lwjgl.vulkan.VK10.VK_MAKE_VERSION
+import org.lwjgl.vulkan.VK10.*
 import org.lwjgl.vulkan.VkDebugUtilsMessengerCallbackDataEXT
 import org.lwjgl.vulkan.VkDebugUtilsMessengerCallbackEXTI
 import org.lwjgl.vulkan.VkLayerProperties
+import org.lwjgl.vulkan.VkPhysicalDevice
 import java.util.stream.Collectors
 
 @Suppress("UNUSED_PARAMETER")
@@ -43,11 +42,12 @@ private fun debugCallback(messageSeverity: Int, messageType: Int, pCallbackData:
     return VK_FALSE
 }
 
-class HelloTriangleApplication02 {
+class HelloTriangleApplication03 {
 
     private lateinit var instance: KVkInstance
     private var window: Long = 0
     private var debugMessenger: Long = 0
+    private var physicalDevice: VkPhysicalDevice? = null
 
     fun run() {
         initWindow()
@@ -66,6 +66,7 @@ class HelloTriangleApplication02 {
     private fun initVulkan() {
         createInstance()
         setupDebugMessenger()
+        pickPhysicalDevice()
     }
 
     private fun mainLoop() {
@@ -149,6 +150,20 @@ class HelloTriangleApplication02 {
         }
     }
 
+    private fun pickPhysicalDevice() {
+        stackPush {
+            val physicalDevices = instance.getPhysicalDevices()
+            physicalDevices.iterate(instance) { device ->
+                if (isDeviceSuitable(device)) {
+                    physicalDevice = device
+                    return
+                }
+            }
+            throw RuntimeException("Failed to find a suitable GPU")
+        }
+    }
+
+
     private fun checkValidationLayerSupport(): Boolean {
         stackPush {
             val availableLayers = vkGetInstanceLayerProperties()
@@ -161,7 +176,7 @@ class HelloTriangleApplication02 {
 }
 
 fun main() {
-    val app = HelloTriangleApplication02()
+    val app = HelloTriangleApplication03()
 
     app.run()
 }
