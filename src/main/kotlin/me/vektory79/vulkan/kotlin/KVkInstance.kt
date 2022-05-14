@@ -94,9 +94,9 @@ fun vkGetInstanceLayerProperties(): VkLayerProperties.Buffer {
 
 @JvmInline
 value class PhysicalDevices(val ppPhysicalDevices: PointerBuffer) {
-    inline fun iterate(instance: VkInstance, processor: (VkPhysicalDevice) -> Unit) {
+    inline fun iterate(instance: VkInstance, processor: (KVkPhysicalDevice) -> Unit) {
         for (i in 0 until ppPhysicalDevices.capacity()) {
-            val device = VkPhysicalDevice(ppPhysicalDevices[i], instance)
+            val device = KVkPhysicalDevice(ppPhysicalDevices[i], instance)
             processor(device)
         }
     }

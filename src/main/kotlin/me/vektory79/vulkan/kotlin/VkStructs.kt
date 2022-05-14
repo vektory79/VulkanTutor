@@ -20,7 +20,7 @@ interface KVkStruct<T : Struct> {
 
 // Use calloc to initialize the structs with 0s. Otherwise, the program can crash due to random values
 context(MemoryStack)
-    inline fun <S : Struct, K : KVkStruct<S>> calloc(create: context(MemoryStack) () -> K, init: K.() -> Unit): S =
+    inline fun <S : Struct, K : KVkStruct<S>> calloc(init: K.() -> Unit, create: context(MemoryStack) () -> K): S =
     create(this@MemoryStack).apply {
         init()
     }.struct
@@ -29,13 +29,10 @@ context(MemoryStack)
 context(MemoryStack)
     @VkStruct
 fun vkApplicationInfo(init: KVkApplicationInfo.() -> Unit): VkApplicationInfo =
-    calloc(
-        {
-            KVkApplicationInfo(
-                VkApplicationInfo.calloc(this@MemoryStack).apply { sType(VK10.VK_STRUCTURE_TYPE_APPLICATION_INFO) })
-        },
-        init
-    )
+    calloc(init) {
+        KVkApplicationInfo(
+            VkApplicationInfo.calloc(this@MemoryStack).apply { sType(VK10.VK_STRUCTURE_TYPE_APPLICATION_INFO) })
+    }
 
 @VkStruct
 @JvmInline
@@ -78,14 +75,11 @@ value class KVkApplicationInfo(override val struct: VkApplicationInfo) : KVkStru
 context(MemoryStack)
     @VkStruct
 fun vkInstanceCreateInfo(init: KVkInstanceCreateInfo.() -> Unit): VkInstanceCreateInfo =
-    calloc(
-        {
-            KVkInstanceCreateInfo(
-                VkInstanceCreateInfo.calloc(this@MemoryStack)
-                    .apply { sType(VK10.VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO) })
-        },
-        init
-    )
+    calloc(init) {
+        KVkInstanceCreateInfo(
+            VkInstanceCreateInfo.calloc(this@MemoryStack)
+                .apply { sType(VK10.VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO) })
+    }
 
 @VkStruct
 @JvmInline
@@ -112,14 +106,11 @@ value class KVkInstanceCreateInfo(override val struct: VkInstanceCreateInfo) : K
 context(MemoryStack)
     @VkStruct
 fun vkDebugUtilsMessengerCreateInfoEXT(init: KVkDebugUtilsMessengerCreateInfoEXT.() -> Unit): VkDebugUtilsMessengerCreateInfoEXT =
-    calloc(
-        {
-            KVkDebugUtilsMessengerCreateInfoEXT(
-                VkDebugUtilsMessengerCreateInfoEXT.calloc(this@MemoryStack)
-                    .apply { sType(VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT) })
-        },
-        init
-    )
+    calloc(init) {
+        KVkDebugUtilsMessengerCreateInfoEXT(
+            VkDebugUtilsMessengerCreateInfoEXT.calloc(this@MemoryStack)
+                .apply { sType(VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT) })
+    }
 
 @VkStruct
 @JvmInline

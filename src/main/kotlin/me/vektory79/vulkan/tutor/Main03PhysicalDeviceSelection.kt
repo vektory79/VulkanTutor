@@ -1,6 +1,7 @@
 package me.vektory79.vulkan.tutor
 
 import me.vektory79.vulkan.kotlin.KVkInstance
+import me.vektory79.vulkan.kotlin.KVkPhysicalDevice
 import me.vektory79.vulkan.kotlin.stackPush
 import me.vektory79.vulkan.kotlin.vkApplicationInfo
 import me.vektory79.vulkan.kotlin.vkCreateInstance
@@ -28,7 +29,10 @@ import org.lwjgl.vulkan.EXTDebugUtils.VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EX
 import org.lwjgl.vulkan.EXTDebugUtils.VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT
 import org.lwjgl.vulkan.EXTDebugUtils.VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT
 import org.lwjgl.vulkan.EXTDebugUtils.VK_EXT_DEBUG_UTILS_EXTENSION_NAME
-import org.lwjgl.vulkan.VK10.*
+import org.lwjgl.vulkan.VK10.VK_API_VERSION_1_0
+import org.lwjgl.vulkan.VK10.VK_FALSE
+import org.lwjgl.vulkan.VK10.VK_MAKE_VERSION
+import org.lwjgl.vulkan.VK10.VK_QUEUE_GRAPHICS_BIT
 import org.lwjgl.vulkan.VkDebugUtilsMessengerCallbackDataEXT
 import org.lwjgl.vulkan.VkDebugUtilsMessengerCallbackEXTI
 import org.lwjgl.vulkan.VkLayerProperties
@@ -163,6 +167,24 @@ class HelloTriangleApplication03 {
         }
     }
 
+    private fun isDeviceSuitable(device: KVkPhysicalDevice): Boolean {
+        val indices = findQueueFamilies(device)
+        return indices.isComplete
+    }
+
+    private fun findQueueFamilies(device: KVkPhysicalDevice): QueueFamilyIndices {
+        val indices = QueueFamilyIndices()
+        stackPush {
+            val queueFamilies = device.queueFamilyProperties()
+            for (index in 0..queueFamilies.capacity()) {
+                if (queueFamilies[index].queueFlags() and VK_QUEUE_GRAPHICS_BIT != 0) {
+                    indices.graphicsFamily = index
+                    break
+                }
+            }
+            return indices
+        }
+    }
 
     private fun checkValidationLayerSupport(): Boolean {
         stackPush {
@@ -173,6 +195,13 @@ class HelloTriangleApplication03 {
             return availableLayerNames.containsAll(VALIDATION_LAYERS)
         }
     }
+}
+
+class QueueFamilyIndices {
+    // We use Integer to use null as the empty value
+    var graphicsFamily: Int? = null
+    val isComplete: Boolean
+        get() = graphicsFamily != null
 }
 
 fun main() {
