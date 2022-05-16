@@ -2,9 +2,9 @@ package me.vektory79.vulkan.tutor
 
 import me.vektory79.vulkan.kotlin.KVkInstance
 import me.vektory79.vulkan.kotlin.stackPush
-import me.vektory79.vulkan.kotlin.vkApplicationInfo
+import me.vektory79.vulkan.kotlin.struct.vkApplicationInfo
+import me.vektory79.vulkan.kotlin.struct.vkInstanceCreateInfo
 import me.vektory79.vulkan.kotlin.vkCreateInstance
-import me.vektory79.vulkan.kotlin.vkInstanceCreateInfo
 import org.lwjgl.glfw.GLFW.GLFW_CLIENT_API
 import org.lwjgl.glfw.GLFW.GLFW_FALSE
 import org.lwjgl.glfw.GLFW.GLFW_NO_API
