@@ -2,6 +2,7 @@ package me.vektory79.vulkan.kotlin.struct
 
 import me.vektory79.vulkan.kotlin.KVkStruct
 import me.vektory79.vulkan.kotlin.VkStruct
+import me.vektory79.vulkan.kotlin.calloc
 import org.lwjgl.system.MemoryStack
 import org.lwjgl.vulkan.VK10
 import org.lwjgl.vulkan.VkApplicationInfo
@@ -9,8 +10,8 @@ import java.nio.ByteBuffer
 
 context(MemoryStack)
     @VkStruct
-fun vkApplicationInfo(init: KVkApplicationInfo.() -> Unit): VkApplicationInfo =
-    me.vektory79.vulkan.kotlin.calloc(init) {
+fun vkApplicationInfo(init: KVkApplicationInfo.() -> Unit): KVkApplicationInfo =
+    calloc(init) {
         KVkApplicationInfo(
             VkApplicationInfo.calloc(this@MemoryStack).apply { sType(VK10.VK_STRUCTURE_TYPE_APPLICATION_INFO) })
     }

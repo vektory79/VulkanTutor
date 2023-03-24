@@ -6,12 +6,11 @@ import me.vektory79.vulkan.kotlin.calloc
 import org.lwjgl.PointerBuffer
 import org.lwjgl.system.MemoryStack
 import org.lwjgl.vulkan.VK10
-import org.lwjgl.vulkan.VkApplicationInfo
 import org.lwjgl.vulkan.VkInstanceCreateInfo
 
 context(MemoryStack)
-    @VkStruct
-fun vkInstanceCreateInfo(init: KVkInstanceCreateInfo.() -> Unit): VkInstanceCreateInfo =
+@VkStruct
+fun vkInstanceCreateInfo(init: KVkInstanceCreateInfo.() -> Unit): KVkInstanceCreateInfo =
     calloc(init) {
         KVkInstanceCreateInfo(
             VkInstanceCreateInfo.calloc(this@MemoryStack)
@@ -21,10 +20,16 @@ fun vkInstanceCreateInfo(init: KVkInstanceCreateInfo.() -> Unit): VkInstanceCrea
 @VkStruct
 @JvmInline
 value class KVkInstanceCreateInfo(override val struct: VkInstanceCreateInfo) : KVkStruct<VkInstanceCreateInfo> {
-    var pApplicationInfo: VkApplicationInfo?
-        get() = struct.pApplicationInfo()
+    var pApplicationInfo: KVkApplicationInfo?
+        get() {
+            val result = struct.pApplicationInfo()
+            return if (result != null)
+                KVkApplicationInfo(result)
+            else
+                null
+        }
         set(value) {
-            struct.pApplicationInfo(value)
+            struct.pApplicationInfo(value?.struct)
         }
 
     var ppEnabledLayerNames: PointerBuffer?

@@ -26,11 +26,11 @@ fun main() {
         println("${extensionCount[0]} extensions supported")
 
         while (!glfwWindowShouldClose(window)) {
-            glfwPollEvents();
+            glfwPollEvents()
         }
     } finally {
-        glfwDestroyWindow(window);
+        glfwDestroyWindow(window)
 
-        glfwTerminate();
+        glfwTerminate()
     }
 }

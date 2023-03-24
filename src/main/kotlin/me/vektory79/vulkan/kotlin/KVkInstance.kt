@@ -1,5 +1,7 @@
 package me.vektory79.vulkan.kotlin
 
+import me.vektory79.vulkan.kotlin.struct.KVkDebugUtilsMessengerCreateInfoEXT
+import me.vektory79.vulkan.kotlin.struct.KVkInstanceCreateInfo
 import org.lwjgl.PointerBuffer
 import org.lwjgl.system.MemoryStack
 import org.lwjgl.system.MemoryUtil
@@ -13,11 +15,9 @@ import org.lwjgl.vulkan.VK10.vkEnumerateInstanceLayerProperties
 import org.lwjgl.vulkan.VK10.vkEnumeratePhysicalDevices
 import org.lwjgl.vulkan.VK10.vkGetInstanceProcAddr
 import org.lwjgl.vulkan.VkAllocationCallbacks
-import org.lwjgl.vulkan.VkDebugUtilsMessengerCreateInfoEXT
 import org.lwjgl.vulkan.VkInstance
 import org.lwjgl.vulkan.VkInstanceCreateInfo
 import org.lwjgl.vulkan.VkLayerProperties
-import org.lwjgl.vulkan.VkPhysicalDevice
 import java.nio.LongBuffer
 
 class KVkInstance(handle: Long, ci: VkInstanceCreateInfo, val allocator: VkAllocationCallbacks? = null) :
@@ -39,12 +39,12 @@ class KVkInstance(handle: Long, ci: VkInstanceCreateInfo, val allocator: VkAlloc
     }
 
     context(MemoryStack)
-    fun createDebugUtilsMessenger(createInfo: VkDebugUtilsMessengerCreateInfoEXT): Long {
+    fun createDebugUtilsMessenger(createInfo: KVkDebugUtilsMessengerCreateInfoEXT): Long {
         val pDebugMessenger: LongBuffer = longs(VK_NULL_HANDLE)
         checkedExtensionCall("vkCreateDebugUtilsMessengerEXT") {
             EXTDebugUtils.vkCreateDebugUtilsMessengerEXT(
                 this,
-                createInfo,
+                createInfo.struct,
                 allocator,
                 pDebugMessenger
             )
@@ -74,13 +74,13 @@ class KVkInstance(handle: Long, ci: VkInstanceCreateInfo, val allocator: VkAlloc
 
 context(MemoryStack)
 fun vkCreateInstance(
-    init: context(MemoryStack) () -> VkInstanceCreateInfo
+    init: context(MemoryStack) () -> KVkInstanceCreateInfo
 ): KVkInstance {
     val createInfo = init(this@MemoryStack)
     // We need to retrieve the pointer of the created instance
     val instancePtr = mallocPointer(1)
-    checkVkResult(vkCreateInstance(createInfo, null, instancePtr))
-    return KVkInstance(instancePtr[0], createInfo)
+    checkVkResult(vkCreateInstance(createInfo.struct, null, instancePtr))
+    return KVkInstance(instancePtr[0], createInfo.struct)
 }
 
 context(MemoryStack)

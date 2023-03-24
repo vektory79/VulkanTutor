@@ -1,15 +1,9 @@
 package me.vektory79.vulkan.kotlin
 
-import org.lwjgl.PointerBuffer
 import org.lwjgl.system.MemoryStack
 import org.lwjgl.system.Struct
-import org.lwjgl.vulkan.EXTDebugUtils.VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT
-import org.lwjgl.vulkan.VK10
-import org.lwjgl.vulkan.VkApplicationInfo
-import org.lwjgl.vulkan.VkDebugUtilsMessengerCallbackEXTI
-import org.lwjgl.vulkan.VkDebugUtilsMessengerCreateInfoEXT
-import org.lwjgl.vulkan.VkInstanceCreateInfo
-import java.nio.ByteBuffer
+import org.lwjgl.system.StructBuffer
+import java.util.function.Consumer
 
 @DslMarker
 annotation class VkStruct
@@ -18,9 +12,110 @@ interface KVkStruct<T : Struct> {
     val struct: T
 }
 
-// Use calloc to initialize the structs with 0s. Otherwise, the program can crash due to random values
 context(MemoryStack)
-    inline fun <S : Struct, K : KVkStruct<S>> calloc(init: K.() -> Unit, create: context(MemoryStack) () -> K): S =
+inline fun <S : Struct, K : KVkStruct<S>> calloc(
+    noinline init: K.() -> Unit,
+    create: context(MemoryStack) () -> K
+): K =
     create(this@MemoryStack).apply {
         init()
-    }.struct
+    }
+
+interface KVkStructArray<S : Struct, T : StructBuffer<S, T>, K : KVkStruct<S>> : Iterable<S> {
+    val struct: T
+
+    var sType: Int
+
+    val sizeof
+        get() = struct.sizeof()
+
+    var position
+        get() = struct.position()
+        set(value) {
+            struct.position(value)
+        }
+
+    var limit
+        get() = struct.limit()
+        set(value) {
+            struct.limit(value)
+        }
+
+    fun mark() {
+        struct.mark()
+    }
+
+    fun reset() {
+        struct.reset()
+    }
+
+    fun clear() {
+        struct.clear()
+    }
+
+    fun flip() {
+        struct.flip()
+    }
+
+    fun rewind() {
+        struct.rewind()
+    }
+
+    val remaining: Int
+        get() = struct.remaining()
+
+    val hasRemaining: Boolean
+        get() = struct.hasRemaining()
+
+    operator fun get(i: Int): K
+
+    operator fun set(i: Int, value: K) {
+        struct.put(i, value.struct)
+    }
+
+    fun apply(consumer: Consumer<S>) {
+        struct.apply(consumer)
+    }
+
+    fun apply(i: Int, consumer: Consumer<S>) {
+        struct.apply(i, consumer)
+    }
+
+    override operator fun iterator(): Iterator<S> = struct.iterator()
+}
+
+inline fun <
+    S : Struct,
+    T : StructBuffer<S, T>,
+    K : KVkStruct<S>,
+    B : KVkStructArray<S, T, K>,
+    C : KVkStructArrayInitCollector<S, T, K, B>
+    >
+    callocArray(sType: Int, inits: C, create: () -> B): B {
+    val buffer: B = create()
+    for (i in 0 until inits.size) {
+        buffer.position = i
+        buffer.sType = sType
+        inits.initializers[i](buffer)
+    }
+    buffer.position = 0
+    return buffer
+}
+
+@VkStruct
+open class KVkStructArrayInitCollector<
+    S : Struct,
+    T : StructBuffer<S, T>,
+    K : KVkStruct<S>,
+    B : KVkStructArray<S, T, K>,
+    > {
+    val initializers = mutableListOf<B.() -> Unit>()
+
+    @VkStruct
+    fun add(init: B.() -> Unit) {
+        initializers.add(init)
+    }
+
+    val size: Int
+        get() = initializers.size
+}

@@ -1,12 +1,19 @@
 package me.vektory79.vulkan.tutor
 
+import me.vektory79.vulkan.kotlin.KVkDevice
 import me.vektory79.vulkan.kotlin.KVkInstance
 import me.vektory79.vulkan.kotlin.KVkPhysicalDevice
+import me.vektory79.vulkan.kotlin.KVkQueue
 import me.vektory79.vulkan.kotlin.stackPush
 import me.vektory79.vulkan.kotlin.struct.vkApplicationInfo
 import me.vektory79.vulkan.kotlin.struct.vkDebugUtilsMessengerCreateInfoEXT
+import me.vektory79.vulkan.kotlin.struct.vkDeviceCreateInfo
+import me.vektory79.vulkan.kotlin.struct.vkDeviceQueueCreateInfoArray
 import me.vektory79.vulkan.kotlin.struct.vkInstanceCreateInfo
+import me.vektory79.vulkan.kotlin.struct.vkPhysicalDeviceFeatures
+import me.vektory79.vulkan.kotlin.vkCreateDevice
 import me.vektory79.vulkan.kotlin.vkCreateInstance
+import me.vektory79.vulkan.kotlin.vkGetDeviceQueue
 import me.vektory79.vulkan.kotlin.vkGetInstanceLayerProperties
 import org.lwjgl.PointerBuffer
 import org.lwjgl.glfw.GLFW.GLFW_CLIENT_API
@@ -36,7 +43,6 @@ import org.lwjgl.vulkan.VK10.VK_QUEUE_GRAPHICS_BIT
 import org.lwjgl.vulkan.VkDebugUtilsMessengerCallbackDataEXT
 import org.lwjgl.vulkan.VkDebugUtilsMessengerCallbackEXTI
 import org.lwjgl.vulkan.VkLayerProperties
-import org.lwjgl.vulkan.VkPhysicalDevice
 import java.util.stream.Collectors
 
 @Suppress("UNUSED_PARAMETER")
@@ -46,12 +52,14 @@ private fun debugCallback(messageSeverity: Int, messageType: Int, pCallbackData:
     return VK_FALSE
 }
 
-class HelloTriangleApplication03 {
+class HelloTriangleApplication04 {
 
     private lateinit var instance: KVkInstance
     private var window: Long = 0
     private var debugMessenger: Long = 0
-    private var physicalDevice: VkPhysicalDevice? = null
+    private lateinit var physicalDevice: KVkPhysicalDevice
+    private lateinit var device: KVkDevice
+    private lateinit var graphicsQueue: KVkQueue
 
     fun run() {
         initWindow()
@@ -71,6 +79,7 @@ class HelloTriangleApplication03 {
         createInstance()
         setupDebugMessenger()
         pickPhysicalDevice()
+        createLogicalDevice()
     }
 
     private fun mainLoop() {
@@ -80,6 +89,7 @@ class HelloTriangleApplication03 {
     }
 
     private fun cleanup() {
+        device.destroy()
         if (ENABLE_VALIDATION_LAYERS) {
             instance.destroyDebugUtilsMessenger(debugMessenger)
         }
@@ -113,7 +123,7 @@ class HelloTriangleApplication03 {
     }
 
     context(MemoryStack)
-        private fun getRequiredExtensions(): PointerBuffer? {
+    private fun getRequiredExtensions(): PointerBuffer? {
         val glfwExtensions = glfwGetRequiredInstanceExtensions()
         if (ENABLE_VALIDATION_LAYERS && glfwExtensions != null) {
             return mallocPointer(glfwExtensions.capacity() + 1).apply {
@@ -127,7 +137,7 @@ class HelloTriangleApplication03 {
     }
 
     context(MemoryStack)
-        private fun validationLayersAsPointerBuffer(): PointerBuffer? {
+    private fun validationLayersAsPointerBuffer(): PointerBuffer? {
         val buffer = mallocPointer(VALIDATION_LAYERS.size)
         VALIDATION_LAYERS.stream()
             .map(this@MemoryStack::UTF8)
@@ -186,6 +196,28 @@ class HelloTriangleApplication03 {
         }
     }
 
+    private fun createLogicalDevice() {
+        stackPush {
+            val indices: QueueFamilyIndices = findQueueFamilies(physicalDevice)
+
+            val createInfo = vkDeviceCreateInfo {
+                pQueueCreateInfos = vkDeviceQueueCreateInfoArray {
+                    add {
+                        queueFamilyIndex = indices.graphicsFamily!!
+                        pQueuePriorities = floats(1.0f)
+                    }
+                }
+                pEnabledFeatures = vkPhysicalDeviceFeatures()
+                if (ENABLE_VALIDATION_LAYERS) {
+                    ppEnabledLayerNames = validationLayersAsPointerBuffer()
+                }
+            }
+
+            device = vkCreateDevice(physicalDevice, createInfo)
+            graphicsQueue = vkGetDeviceQueue(device, indices.graphicsFamily!!)
+        }
+    }
+
     private fun checkValidationLayerSupport(): Boolean {
         stackPush {
             val availableLayers = vkGetInstanceLayerProperties()
@@ -205,7 +237,7 @@ class HelloTriangleApplication03 {
 }
 
 fun main() {
-    val app = HelloTriangleApplication03()
+    val app = HelloTriangleApplication04()
 
     app.run()
 }

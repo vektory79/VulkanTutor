@@ -2,6 +2,7 @@ package me.vektory79.vulkan.kotlin.struct
 
 import me.vektory79.vulkan.kotlin.KVkStruct
 import me.vektory79.vulkan.kotlin.VkStruct
+import me.vektory79.vulkan.kotlin.calloc
 import org.lwjgl.system.MemoryStack
 import org.lwjgl.vulkan.EXTDebugUtils
 import org.lwjgl.vulkan.VkDebugUtilsMessengerCallbackEXTI
@@ -9,8 +10,8 @@ import org.lwjgl.vulkan.VkDebugUtilsMessengerCreateInfoEXT
 
 context(MemoryStack)
     @VkStruct
-fun vkDebugUtilsMessengerCreateInfoEXT(init: KVkDebugUtilsMessengerCreateInfoEXT.() -> Unit): VkDebugUtilsMessengerCreateInfoEXT =
-    me.vektory79.vulkan.kotlin.calloc(init) {
+fun vkDebugUtilsMessengerCreateInfoEXT(init: KVkDebugUtilsMessengerCreateInfoEXT.() -> Unit): KVkDebugUtilsMessengerCreateInfoEXT =
+    calloc(init) {
         KVkDebugUtilsMessengerCreateInfoEXT(
             VkDebugUtilsMessengerCreateInfoEXT.calloc(this@MemoryStack)
                 .apply { sType(EXTDebugUtils.VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT) })
