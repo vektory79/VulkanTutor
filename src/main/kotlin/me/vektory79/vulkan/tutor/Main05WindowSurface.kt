@@ -199,13 +199,14 @@ class HelloTriangleApplication05 {
         val indices = QueueFamilyIndices()
         stackPush {
             val queueFamilies = device.queueFamilyProperties()
-            for (index in 0..queueFamilies.capacity()) {
+            for (index in 0 until queueFamilies.capacity()) {
                 if (queueFamilies[index].queueFlags() and VK_QUEUE_GRAPHICS_BIT != 0) {
                     indices.graphicsFamily = index
                 }
                 if (device.surfaceSupport(index, surface)) {
                     indices.presentFamily = index
                 }
+                if (indices.isComplete) break
             }
             return indices
         }

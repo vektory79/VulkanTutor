@@ -1,7 +1,7 @@
 package me.vektory79.vulkan.kotlin
 
 import org.lwjgl.system.MemoryStack
-import org.lwjgl.vulkan.KHRSurface
+import org.lwjgl.vulkan.KHRSurface.vkGetPhysicalDeviceSurfaceSupportKHR
 import org.lwjgl.vulkan.VK10.VK_FALSE
 import org.lwjgl.vulkan.VK10.VK_TRUE
 import org.lwjgl.vulkan.VK10.vkGetPhysicalDeviceQueueFamilyProperties
@@ -23,7 +23,7 @@ class KVkPhysicalDevice(handle: Long, instance: VkInstance) : VkPhysicalDevice(h
     fun surfaceSupport(pipelineFamilyId: Int, surface: KVkSurface): Boolean {
         stackPush {
             val presentSupport: IntBuffer = ints(VK_FALSE)
-            KHRSurface.vkGetPhysicalDeviceSurfaceSupportKHR(
+            vkGetPhysicalDeviceSurfaceSupportKHR(
                 this@KVkPhysicalDevice,
                 pipelineFamilyId,
                 surface.surface,
