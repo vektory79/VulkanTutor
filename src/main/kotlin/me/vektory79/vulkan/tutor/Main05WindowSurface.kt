@@ -46,6 +46,7 @@ import org.lwjgl.vulkan.VkDebugUtilsMessengerCallbackDataEXT
 import org.lwjgl.vulkan.VkDebugUtilsMessengerCallbackEXTI
 import org.lwjgl.vulkan.VkLayerProperties
 import java.util.stream.Collectors
+import java.util.stream.IntStream
 
 @Suppress("UNUSED_PARAMETER")
 private fun debugCallback(messageSeverity: Int, messageType: Int, pCallbackData: Long, pUserData: Long): Int {
@@ -63,6 +64,7 @@ class HelloTriangleApplication05 {
     private lateinit var physicalDevice: KVkPhysicalDevice
     private lateinit var device: KVkDevice
     private lateinit var graphicsQueue: KVkQueue
+    private lateinit var presentQueue: KVkQueue
 
     fun run() {
         initWindow()
@@ -200,7 +202,9 @@ class HelloTriangleApplication05 {
             for (index in 0..queueFamilies.capacity()) {
                 if (queueFamilies[index].queueFlags() and VK_QUEUE_GRAPHICS_BIT != 0) {
                     indices.graphicsFamily = index
-                    break
+                }
+                if (device.surfaceSupport(index, surface)) {
+                    indices.presentFamily = index
                 }
             }
             return indices
@@ -226,6 +230,7 @@ class HelloTriangleApplication05 {
 
             device = vkCreateDevice(physicalDevice, createInfo)
             graphicsQueue = vkGetDeviceQueue(device, indices.graphicsFamily!!)
+            presentQueue = vkGetDeviceQueue(device, indices.presentFamily!!)
         }
     }
 
@@ -242,8 +247,11 @@ class HelloTriangleApplication05 {
     class QueueFamilyIndices {
         // We use Integer to use null as the empty value
         var graphicsFamily: Int? = null
+        var presentFamily: Int? = null
         val isComplete: Boolean
-            get() = graphicsFamily != null
+            get() = graphicsFamily != null && presentFamily != null
+
+        fun unique(): IntArray? = IntStream.of(graphicsFamily!!, presentFamily!!).distinct().toArray()
     }
 }
 
