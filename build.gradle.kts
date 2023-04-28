@@ -2,7 +2,7 @@ val javaLangVersion = 18
 val lwjglVersion = "3.3.1"
 
 plugins {
-    id("org.jetbrains.kotlin.jvm") version ("1.8.0")
+    id("org.jetbrains.kotlin.jvm") version ("1.8.21")
 }
 
 group = "me.vektory79.vulkan.tutor"
