@@ -8,15 +8,6 @@ import org.lwjgl.system.MemoryStack
 import org.lwjgl.vulkan.VK10
 import org.lwjgl.vulkan.VkInstanceCreateInfo
 
-context(MemoryStack)
-@VkStruct
-fun vkInstanceCreateInfo(init: KVkInstanceCreateInfo.() -> Unit): KVkInstanceCreateInfo =
-    calloc(init) {
-        KVkInstanceCreateInfo(
-            VkInstanceCreateInfo.calloc(this@MemoryStack)
-                .apply { sType(VK10.VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO) })
-    }
-
 @VkStruct
 @JvmInline
 value class KVkInstanceCreateInfo(override val struct: VkInstanceCreateInfo) : KVkStruct<VkInstanceCreateInfo> {
@@ -43,4 +34,15 @@ value class KVkInstanceCreateInfo(override val struct: VkInstanceCreateInfo) : K
         set(value) {
             struct.ppEnabledExtensionNames(value)
         }
+
+    companion object {
+        context(MemoryStack)
+        @VkStruct
+        fun vkInstanceCreateInfo(init: KVkInstanceCreateInfo.() -> Unit): KVkInstanceCreateInfo =
+            calloc(init) {
+                KVkInstanceCreateInfo(
+                    VkInstanceCreateInfo.calloc(this@MemoryStack)
+                        .apply { sType(VK10.VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO) })
+            }
+    }
 }

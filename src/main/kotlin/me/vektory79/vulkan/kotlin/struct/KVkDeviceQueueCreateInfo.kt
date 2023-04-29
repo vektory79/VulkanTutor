@@ -13,15 +13,6 @@ import org.lwjgl.vulkan.VkDeviceQueueGlobalPriorityCreateInfoEXT
 import org.lwjgl.vulkan.VkDeviceQueueGlobalPriorityCreateInfoKHR
 import java.nio.FloatBuffer
 
-context(MemoryStack)
-@VkStruct
-fun vkDeviceQueueCreateInfo(init: KVkDeviceQueueCreateInfo.() -> Unit): KVkDeviceQueueCreateInfo =
-    calloc(init) {
-        KVkDeviceQueueCreateInfo(
-            VkDeviceQueueCreateInfo.calloc(this@MemoryStack)
-                .apply { sType(VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO) })
-    }
-
 @VkStruct
 @JvmInline
 value class KVkDeviceQueueCreateInfo(override val struct: VkDeviceQueueCreateInfo) :
@@ -55,24 +46,15 @@ value class KVkDeviceQueueCreateInfo(override val struct: VkDeviceQueueCreateInf
             struct.pQueuePriorities(value)
         }
 
-}
-
-context(MemoryStack)
-@VkStruct
-fun vkDeviceQueueCreateInfoArray(
-    init: KVkDeviceQueueCreateInfoInitCollector.() -> Unit
-): KVkDeviceQueueCreateInfoArray {
-    val collector = KVkDeviceQueueCreateInfoInitCollector()
-    collector.init()
-    return callocArray(
-        VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
-        collector
-    ) {
-        KVkDeviceQueueCreateInfoArray(
-            VkDeviceQueueCreateInfo
-                .calloc(collector.size, this@MemoryStack)
-                .sType(VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO)
-        )
+    companion object {
+        context(MemoryStack)
+        @VkStruct
+        fun vkDeviceQueueCreateInfo(init: KVkDeviceQueueCreateInfo.() -> Unit): KVkDeviceQueueCreateInfo =
+            calloc(init) {
+                KVkDeviceQueueCreateInfo(
+                    VkDeviceQueueCreateInfo.calloc(this@MemoryStack)
+                        .apply { sType(VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO) })
+            }
     }
 }
 
@@ -125,4 +107,24 @@ value class KVkDeviceQueueCreateInfoArray(override val struct: VkDeviceQueueCrea
         set(value) {
             struct.pQueuePriorities(value)
         }
+
+    companion object {
+        context(MemoryStack)
+        @VkStruct
+        fun vkDeviceQueueCreateInfoArray(
+            init: KVkDeviceQueueCreateInfoInitCollector.() -> Unit
+        ): KVkDeviceQueueCreateInfoArray {
+            val collector = KVkDeviceQueueCreateInfoInitCollector()
+            collector.init()
+            return callocArray(
+                VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
+                collector
+            ) {
+                KVkDeviceQueueCreateInfoArray(
+                    VkDeviceQueueCreateInfo
+                        .calloc(collector.size, this@MemoryStack)
+                )
+            }
+        }
+    }
 }

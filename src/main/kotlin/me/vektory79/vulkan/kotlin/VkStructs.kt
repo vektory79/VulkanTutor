@@ -96,7 +96,7 @@ inline fun <
     for (i in 0 until inits.size) {
         buffer.position = i
         buffer.sType = sType
-        inits.initializers[i](buffer)
+        inits[i](buffer)
     }
     buffer.position = 0
     return buffer
@@ -109,7 +109,7 @@ open class KVkStructArrayInitCollector<
     K : KVkStruct<S>,
     B : KVkStructArray<S, T, K>,
     > {
-    val initializers = mutableListOf<B.() -> Unit>()
+    private val initializers = mutableListOf<B.() -> Unit>()
 
     @VkStruct
     fun add(init: B.() -> Unit) {
@@ -118,4 +118,6 @@ open class KVkStructArrayInitCollector<
 
     val size: Int
         get() = initializers.size
+
+    operator fun get(i: Int) = initializers[i]
 }

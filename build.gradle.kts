@@ -1,4 +1,4 @@
-val javaLangVersion = 18
+val javaLangVersion = 17
 val lwjglVersion = "3.3.1"
 
 plugins {

@@ -6,15 +6,6 @@ import me.vektory79.vulkan.kotlin.calloc
 import org.lwjgl.system.MemoryStack
 import org.lwjgl.vulkan.VkPhysicalDeviceFeatures
 
-context(MemoryStack)
-@VkStruct
-fun vkPhysicalDeviceFeatures(init: KVkPhysicalDeviceFeatures.() -> Unit = {}): KVkPhysicalDeviceFeatures =
-    calloc(init) {
-        KVkPhysicalDeviceFeatures(
-            VkPhysicalDeviceFeatures.calloc(this@MemoryStack)
-        )
-    }
-
 class KVkPhysicalDeviceFeatures(override val struct: VkPhysicalDeviceFeatures) :
     KVkStruct<VkPhysicalDeviceFeatures> {
 
@@ -335,4 +326,15 @@ class KVkPhysicalDeviceFeatures(override val struct: VkPhysicalDeviceFeatures) :
         set(value) {
             struct.inheritedQueries(value)
         }
+
+    companion object {
+        context(MemoryStack)
+        @VkStruct
+        fun vkPhysicalDeviceFeatures(init: KVkPhysicalDeviceFeatures.() -> Unit = {}): KVkPhysicalDeviceFeatures =
+            calloc(init) {
+                KVkPhysicalDeviceFeatures(
+                    VkPhysicalDeviceFeatures.calloc(this@MemoryStack)
+                )
+            }
+    }
 }

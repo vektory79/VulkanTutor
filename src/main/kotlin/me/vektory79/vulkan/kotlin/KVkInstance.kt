@@ -70,17 +70,19 @@ class KVkInstance(handle: Long, ci: VkInstanceCreateInfo, val allocator: VkAlloc
         vkEnumeratePhysicalDevices(this, deviceCount, ppPhysicalDevices)
         return PhysicalDevices(ppPhysicalDevices)
     }
-}
 
-context(MemoryStack)
-fun vkCreateInstance(
-    init: context(MemoryStack) () -> KVkInstanceCreateInfo
-): KVkInstance {
-    val createInfo = init(this@MemoryStack)
-    // We need to retrieve the pointer of the created instance
-    val instancePtr = mallocPointer(1)
-    checkVkResult(vkCreateInstance(createInfo.struct, null, instancePtr))
-    return KVkInstance(instancePtr[0], createInfo.struct)
+    companion object {
+        context(MemoryStack)
+        fun vkCreateInstance(
+            init: context(MemoryStack) () -> KVkInstanceCreateInfo
+        ): KVkInstance {
+            val createInfo = init(this@MemoryStack)
+            // We need to retrieve the pointer of the created instance
+            val instancePtr = mallocPointer(1)
+            checkVkResult(vkCreateInstance(createInfo.struct, null, instancePtr))
+            return KVkInstance(instancePtr[0], createInfo.struct)
+        }
+    }
 }
 
 context(MemoryStack)

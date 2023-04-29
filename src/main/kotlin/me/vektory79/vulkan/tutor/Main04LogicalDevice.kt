@@ -5,15 +5,12 @@ import me.vektory79.vulkan.kotlin.KVkInstance
 import me.vektory79.vulkan.kotlin.KVkPhysicalDevice
 import me.vektory79.vulkan.kotlin.KVkQueue
 import me.vektory79.vulkan.kotlin.stackPush
-import me.vektory79.vulkan.kotlin.struct.vkApplicationInfo
-import me.vektory79.vulkan.kotlin.struct.vkDebugUtilsMessengerCreateInfoEXT
-import me.vektory79.vulkan.kotlin.struct.vkDeviceCreateInfo
-import me.vektory79.vulkan.kotlin.struct.vkDeviceQueueCreateInfoArray
-import me.vektory79.vulkan.kotlin.struct.vkInstanceCreateInfo
-import me.vektory79.vulkan.kotlin.struct.vkPhysicalDeviceFeatures
-import me.vektory79.vulkan.kotlin.vkCreateDevice
-import me.vektory79.vulkan.kotlin.vkCreateInstance
-import me.vektory79.vulkan.kotlin.vkGetDeviceQueue
+import me.vektory79.vulkan.kotlin.struct.KVkApplicationInfo
+import me.vektory79.vulkan.kotlin.struct.KVkDebugUtilsMessengerCreateInfoEXT
+import me.vektory79.vulkan.kotlin.struct.KVkDeviceCreateInfo
+import me.vektory79.vulkan.kotlin.struct.KVkDeviceQueueCreateInfoArray
+import me.vektory79.vulkan.kotlin.struct.KVkInstanceCreateInfo
+import me.vektory79.vulkan.kotlin.struct.KVkPhysicalDeviceFeatures
 import me.vektory79.vulkan.kotlin.vkGetInstanceLayerProperties
 import org.lwjgl.PointerBuffer
 import org.lwjgl.glfw.GLFW.GLFW_CLIENT_API
@@ -104,9 +101,9 @@ class HelloTriangleApplication04 {
         }
 
         stackPush {
-            instance = vkCreateInstance {
-                vkInstanceCreateInfo {
-                    pApplicationInfo = vkApplicationInfo {
+            instance = KVkInstance.vkCreateInstance {
+                KVkInstanceCreateInfo.vkInstanceCreateInfo {
+                    pApplicationInfo = KVkApplicationInfo.vkApplicationInfo {
                         pApplicationName = UTF8("Hello Triangle")
                         applicationVersion = VK_MAKE_VERSION(1, 0, 0)
                         pEngineName = UTF8("No Engine")
@@ -149,7 +146,7 @@ class HelloTriangleApplication04 {
         if (!ENABLE_VALIDATION_LAYERS) return
         stackPush {
             debugMessenger = instance.createDebugUtilsMessenger(
-                vkDebugUtilsMessengerCreateInfoEXT {
+                KVkDebugUtilsMessengerCreateInfoEXT.vkDebugUtilsMessengerCreateInfoEXT {
                     messageSeverity =
                         VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT or
                             VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT or
@@ -200,21 +197,21 @@ class HelloTriangleApplication04 {
         stackPush {
             val indices: QueueFamilyIndices = findQueueFamilies(physicalDevice)
 
-            val createInfo = vkDeviceCreateInfo {
-                pQueueCreateInfos = vkDeviceQueueCreateInfoArray {
+            val createInfo = KVkDeviceCreateInfo.vkDeviceCreateInfo {
+                pQueueCreateInfos = KVkDeviceQueueCreateInfoArray.vkDeviceQueueCreateInfoArray {
                     add {
                         queueFamilyIndex = indices.graphicsFamily!!
                         pQueuePriorities = floats(1.0f)
                     }
                 }
-                pEnabledFeatures = vkPhysicalDeviceFeatures()
+                pEnabledFeatures = KVkPhysicalDeviceFeatures.vkPhysicalDeviceFeatures()
                 if (ENABLE_VALIDATION_LAYERS) {
                     ppEnabledLayerNames = validationLayersAsPointerBuffer()
                 }
             }
 
-            device = vkCreateDevice(physicalDevice, createInfo)
-            graphicsQueue = vkGetDeviceQueue(device, indices.graphicsFamily!!)
+            device = KVkDevice.vkCreateDevice(physicalDevice, createInfo)
+            graphicsQueue = KVkQueue.vkGetDeviceQueue(device, indices.graphicsFamily!!)
         }
     }
 

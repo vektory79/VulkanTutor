@@ -2,9 +2,8 @@ package me.vektory79.vulkan.tutor
 
 import me.vektory79.vulkan.kotlin.KVkInstance
 import me.vektory79.vulkan.kotlin.stackPush
-import me.vektory79.vulkan.kotlin.struct.vkApplicationInfo
-import me.vektory79.vulkan.kotlin.struct.vkInstanceCreateInfo
-import me.vektory79.vulkan.kotlin.vkCreateInstance
+import me.vektory79.vulkan.kotlin.struct.KVkApplicationInfo
+import me.vektory79.vulkan.kotlin.struct.KVkInstanceCreateInfo
 import org.lwjgl.glfw.GLFW.GLFW_CLIENT_API
 import org.lwjgl.glfw.GLFW.GLFW_FALSE
 import org.lwjgl.glfw.GLFW.GLFW_NO_API
@@ -57,9 +56,9 @@ class HelloTriangleApplication01 {
 
     private fun createInstance() {
         stackPush {
-            instance = vkCreateInstance {
-                vkInstanceCreateInfo {
-                    pApplicationInfo = vkApplicationInfo {
+            instance = KVkInstance.vkCreateInstance {
+                KVkInstanceCreateInfo.vkInstanceCreateInfo {
+                    pApplicationInfo = KVkApplicationInfo.vkApplicationInfo {
                         pApplicationName = UTF8Safe("Hello Triangle")
                         applicationVersion = VK_MAKE_VERSION(1, 0, 0)
                         pEngineName = UTF8Safe("No Engine")

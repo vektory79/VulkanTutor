@@ -3,10 +3,9 @@ package me.vektory79.vulkan.tutor
 import me.vektory79.vulkan.kotlin.KVkInstance
 import me.vektory79.vulkan.kotlin.KVkPhysicalDevice
 import me.vektory79.vulkan.kotlin.stackPush
-import me.vektory79.vulkan.kotlin.struct.vkApplicationInfo
-import me.vektory79.vulkan.kotlin.struct.vkDebugUtilsMessengerCreateInfoEXT
-import me.vektory79.vulkan.kotlin.struct.vkInstanceCreateInfo
-import me.vektory79.vulkan.kotlin.vkCreateInstance
+import me.vektory79.vulkan.kotlin.struct.KVkApplicationInfo
+import me.vektory79.vulkan.kotlin.struct.KVkDebugUtilsMessengerCreateInfoEXT
+import me.vektory79.vulkan.kotlin.struct.KVkInstanceCreateInfo
 import me.vektory79.vulkan.kotlin.vkGetInstanceLayerProperties
 import org.lwjgl.PointerBuffer
 import org.lwjgl.glfw.GLFW.GLFW_CLIENT_API
@@ -94,9 +93,9 @@ class HelloTriangleApplication03 {
         }
 
         stackPush {
-            instance = vkCreateInstance {
-                vkInstanceCreateInfo {
-                    pApplicationInfo = vkApplicationInfo {
+            instance = KVkInstance.vkCreateInstance {
+                KVkInstanceCreateInfo.vkInstanceCreateInfo {
+                    pApplicationInfo = KVkApplicationInfo.vkApplicationInfo {
                         pApplicationName = UTF8("Hello Triangle")
                         applicationVersion = VK_MAKE_VERSION(1, 0, 0)
                         pEngineName = UTF8("No Engine")
@@ -139,7 +138,7 @@ class HelloTriangleApplication03 {
         if (!ENABLE_VALIDATION_LAYERS) return
         stackPush {
             debugMessenger = instance.createDebugUtilsMessenger(
-                vkDebugUtilsMessengerCreateInfoEXT {
+                KVkDebugUtilsMessengerCreateInfoEXT.vkDebugUtilsMessengerCreateInfoEXT {
                     messageSeverity =
                         VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT or
                             VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT or

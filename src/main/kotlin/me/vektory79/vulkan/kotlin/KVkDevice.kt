@@ -11,11 +11,14 @@ class KVkDevice(val struct: VkDevice) {
     fun destroy() {
         vkDestroyDevice(struct, null)
     }
-}
 
-context(MemoryStack)
-fun vkCreateDevice(physicalDevice: KVkPhysicalDevice, createInfo: KVkDeviceCreateInfo): KVkDevice {
-    val pDevice: PointerBuffer = pointers(VK10.VK_NULL_HANDLE)
-    checkVkResult(VK10.vkCreateDevice(physicalDevice, createInfo.struct, null, pDevice))
-    return KVkDevice(VkDevice(pDevice[0], physicalDevice, createInfo.struct))
+    companion object {
+
+        context(MemoryStack)
+        fun vkCreateDevice(physicalDevice: KVkPhysicalDevice, createInfo: KVkDeviceCreateInfo): KVkDevice {
+            val pDevice: PointerBuffer = pointers(VK10.VK_NULL_HANDLE)
+            checkVkResult(VK10.vkCreateDevice(physicalDevice, createInfo.struct, null, pDevice))
+            return KVkDevice(VkDevice(pDevice[0], physicalDevice, createInfo.struct))
+        }
+    }
 }
