@@ -1,8 +1,8 @@
 val javaLangVersion = 17
-val lwjglVersion = "3.3.1"
+val lwjglVersion = "3.3.3"
 
 plugins {
-    id("org.jetbrains.kotlin.jvm") version ("1.8.21")
+    id("org.jetbrains.kotlin.jvm") version ("2.0.0")
 }
 
 group = "me.vektory79.vulkan.tutor"
@@ -33,14 +33,21 @@ repositories {
     mavenCentral()
 }
 
-tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
-    kotlinOptions.freeCompilerArgs += "-Xcontext-receivers"
+tasks.named("compileKotlin", org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask::class.java) {
+    compilerOptions {
+        freeCompilerArgs.add("-Xcontext-receivers")
+    }
 }
 
 java {
     toolchain {
         languageVersion.set(JavaLanguageVersion.of(javaLangVersion))
     }
+}
+
+
+val sources: Configuration by configurations.creating {
+    isTransitive = false
 }
 
 dependencies {
@@ -67,4 +74,16 @@ dependencies {
     runtimeOnly("org.lwjgl", "lwjgl-stb", classifier = lwjglNatives)
     runtimeOnly("org.lwjgl", "lwjgl-vma", classifier = lwjglNatives)
     if (lwjglNatives == "natives-macos" || lwjglNatives == "natives-macos-arm64") runtimeOnly("org.lwjgl", "lwjgl-vulkan", classifier = lwjglNatives)
+
+    sources(group = "org.lwjgl", name = "lwjgl-vulkan", version = lwjglVersion, classifier = "sources")
 }
+kotlin {
+    jvmToolchain(17)
+}
+
+val downloadFromRepository by tasks.registering(Copy::class) {
+    from(sources)
+    into(layout.buildDirectory.dir("sourcesJars"))
+}
+
+tasks.findByName("compileKotlin")?.dependsOn(downloadFromRepository)

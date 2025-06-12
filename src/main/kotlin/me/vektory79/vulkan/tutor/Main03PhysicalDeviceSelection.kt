@@ -174,9 +174,9 @@ class HelloTriangleApplication03 {
     private fun findQueueFamilies(device: KVkPhysicalDevice): QueueFamilyIndices {
         val indices = QueueFamilyIndices()
         stackPush {
-            val queueFamilies = device.queueFamilyProperties()
-            for (index in 0..queueFamilies.capacity()) {
-                if (queueFamilies[index].queueFlags() and VK_QUEUE_GRAPHICS_BIT != 0) {
+            val queueFamilies = device.queueFamilyProperties
+            for (index in 0..queueFamilies.capacity) {
+                if (queueFamilies[index].queueFlags.graphics) {
                     indices.graphicsFamily = index
                     break
                 }

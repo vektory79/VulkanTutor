@@ -12,6 +12,8 @@ import me.vektory79.vulkan.kotlin.struct.KVkDeviceCreateInfo
 import me.vektory79.vulkan.kotlin.struct.KVkDeviceQueueCreateInfoArray
 import me.vektory79.vulkan.kotlin.struct.KVkInstanceCreateInfo
 import me.vektory79.vulkan.kotlin.struct.KVkPhysicalDeviceFeatures
+import me.vektory79.vulkan.kotlin.struct.KVkSurfaceCapabilitiesKHR
+import me.vektory79.vulkan.kotlin.struct.KVkSurfaceFormatKHRArray
 import me.vektory79.vulkan.kotlin.vkGetInstanceLayerProperties
 import org.lwjgl.PointerBuffer
 import org.lwjgl.glfw.GLFW.GLFW_CLIENT_API
@@ -34,13 +36,14 @@ import org.lwjgl.vulkan.EXTDebugUtils.VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EX
 import org.lwjgl.vulkan.EXTDebugUtils.VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT
 import org.lwjgl.vulkan.EXTDebugUtils.VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT
 import org.lwjgl.vulkan.EXTDebugUtils.VK_EXT_DEBUG_UTILS_EXTENSION_NAME
+import org.lwjgl.vulkan.KHRSwapchain.VK_KHR_SWAPCHAIN_EXTENSION_NAME
 import org.lwjgl.vulkan.VK10.VK_API_VERSION_1_0
 import org.lwjgl.vulkan.VK10.VK_FALSE
 import org.lwjgl.vulkan.VK10.VK_MAKE_VERSION
-import org.lwjgl.vulkan.VK10.VK_QUEUE_GRAPHICS_BIT
 import org.lwjgl.vulkan.VkDebugUtilsMessengerCallbackDataEXT
 import org.lwjgl.vulkan.VkDebugUtilsMessengerCallbackEXTI
 import org.lwjgl.vulkan.VkLayerProperties
+import java.nio.IntBuffer
 import java.util.stream.Collectors
 import java.util.stream.IntStream
 
@@ -51,8 +54,9 @@ private fun debugCallback(messageSeverity: Int, messageType: Int, pCallbackData:
     return VK_FALSE
 }
 
-class HelloTriangleApplication05 {
+class HelloTriangleApplication06 {
 
+    private val DEVICE_EXTENSIONS = setOf(VK_KHR_SWAPCHAIN_EXTENSION_NAME)
     private lateinit var instance: KVkInstance
     private var window: Long = 0
     private var debugMessenger: Long = 0
@@ -178,7 +182,7 @@ class HelloTriangleApplication05 {
         stackPush {
             val physicalDevices = instance.getPhysicalDevices()
             physicalDevices.iterate(instance) { device ->
-                if (isDeviceSuitable(device)) {
+                if (device.isDeviceSuitable()) {
                     physicalDevice = device
                     found = true
                     //return
@@ -189,20 +193,50 @@ class HelloTriangleApplication05 {
         }
     }
 
-    private fun isDeviceSuitable(device: KVkPhysicalDevice): Boolean {
-        val indices = findQueueFamilies(device)
-        return indices.isComplete
+    private fun KVkPhysicalDevice.isDeviceSuitable(): Boolean {
+        val indices = findQueueFamilies()
+        var swapChainAdequate = false
+
+        val extensionsSupported = checkDeviceExtensionSupport()
+        if (extensionsSupported) {
+            stackPush {
+                val swapChainSupport = querySwapChainSupport()
+                swapChainAdequate =
+                    swapChainSupport.formats!!.hasRemaining && swapChainSupport.presentModes!!.hasRemaining()
+            }
+        }
+
+        return indices.isComplete && extensionsSupported && swapChainAdequate
     }
 
-    private fun findQueueFamilies(device: KVkPhysicalDevice): QueueFamilyIndices {
+    private fun KVkPhysicalDevice.checkDeviceExtensionSupport(): Boolean {
+        stackPush {
+            val extensionsNames = mutableSetOf<String>()
+            for (extension in availableExtensions) {
+                extensionsNames.add(extension.extensionNameString)
+            }
+            return extensionsNames.containsAll(DEVICE_EXTENSIONS)
+        }
+    }
+
+    context(MemoryStack)
+    private fun KVkPhysicalDevice.querySwapChainSupport(): SwapChainSupportDetails {
+        val details = SwapChainSupportDetails()
+        details.capabilities = getSurfaceCapabilities(surface)
+        details.formats = getSurfaceFormats(surface)
+        details.presentModes = getPhysicalDeviceSurfacePresentModes(surface)
+        return details
+    }
+
+    private fun KVkPhysicalDevice.findQueueFamilies(): QueueFamilyIndices {
         val indices = QueueFamilyIndices()
         stackPush {
-            val queueFamilies = device.queueFamilyProperties
+            val queueFamilies = queueFamilyProperties
             for (index in 0 until queueFamilies.capacity) {
                 if (queueFamilies[index].queueFlags.graphics) {
                     indices.graphicsFamily = index
                 }
-                if (device.surfaceSupport(index, surface)) {
+                if (surfaceSupport(index, surface)) {
                     indices.presentFamily = index
                 }
                 if (indices.isComplete) break
@@ -213,7 +247,7 @@ class HelloTriangleApplication05 {
 
     private fun createLogicalDevice() {
         stackPush {
-            val indices: QueueFamilyIndices = findQueueFamilies(physicalDevice)
+            val indices: QueueFamilyIndices = physicalDevice.findQueueFamilies()
 
             val createInfo = KVkDeviceCreateInfo.vkDeviceCreateInfo {
                 pQueueCreateInfos = KVkDeviceQueueCreateInfoArray.vkDeviceQueueCreateInfoArray {
@@ -253,10 +287,17 @@ class HelloTriangleApplication05 {
 
         fun unique(): IntArray? = IntStream.of(graphicsFamily!!, presentFamily!!).distinct().toArray()
     }
+
+
+    class SwapChainSupportDetails {
+        var capabilities: KVkSurfaceCapabilitiesKHR? = null
+        var formats: KVkSurfaceFormatKHRArray? = null
+        var presentModes: IntBuffer? = null
+    }
 }
 
 fun main() {
-    val app = HelloTriangleApplication05()
+    val app = HelloTriangleApplication06()
 
     app.run()
 }

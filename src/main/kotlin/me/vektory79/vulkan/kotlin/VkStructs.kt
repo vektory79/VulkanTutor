@@ -4,16 +4,17 @@ import org.lwjgl.system.MemoryStack
 import org.lwjgl.system.Struct
 import org.lwjgl.system.StructBuffer
 import java.util.function.Consumer
+import java.util.stream.Stream
 
 @DslMarker
 annotation class VkStruct
 
-interface KVkStruct<T : Struct> {
+interface KVkStruct<T : Struct<T>> {
     val struct: T
 }
 
 context(MemoryStack)
-inline fun <S : Struct, K : KVkStruct<S>> calloc(
+inline fun <S : Struct<S>, K : KVkStruct<S>> calloc(
     noinline init: K.() -> Unit,
     create: context(MemoryStack) () -> K
 ): K =
@@ -21,10 +22,12 @@ inline fun <S : Struct, K : KVkStruct<S>> calloc(
         init()
     }
 
-interface KVkStructArray<S : Struct, T : StructBuffer<S, T>, K : KVkStruct<S>> : Iterable<S> {
+interface KVkStructArray<S : Struct<S>, T : StructBuffer<S, T>, K : KVkStruct<S>> : Iterable<K> {
     val struct: T
 
     var sType: Int
+
+    fun wrap(struct: S): K
 
     val sizeof
         get() = struct.sizeof()
@@ -40,6 +43,9 @@ interface KVkStructArray<S : Struct, T : StructBuffer<S, T>, K : KVkStruct<S>> :
         set(value) {
             struct.limit(value)
         }
+
+    val capacity
+        get() = struct.capacity()
 
     fun mark() {
         struct.mark()
@@ -81,17 +87,26 @@ interface KVkStructArray<S : Struct, T : StructBuffer<S, T>, K : KVkStruct<S>> :
         struct.apply(i, consumer)
     }
 
-    override operator fun iterator(): Iterator<S> = struct.iterator()
+    override operator fun iterator(): Iterator<K> = ArrayIterator(this)
+}
+
+class ArrayIterator<S : Struct<S>, T : StructBuffer<S, T>, K : KVkStruct<S>, A : KVkStructArray<S, T, K>>(private val array: A) : Iterator<K> {
+    val iterator = array.struct.iterator()
+    override fun hasNext(): Boolean = iterator.hasNext()
+
+    override fun next(): K {
+        return array.wrap(iterator.next())
+    }
 }
 
 inline fun <
-    S : Struct,
-    T : StructBuffer<S, T>,
-    K : KVkStruct<S>,
-    B : KVkStructArray<S, T, K>,
-    C : KVkStructArrayInitCollector<S, T, K, B>
-    >
-    callocArray(sType: Int, inits: C, create: () -> B): B {
+        S : Struct<S>,
+        T : StructBuffer<S, T>,
+        K : KVkStruct<S>,
+        B : KVkStructArray<S, T, K>,
+        C : KVkStructArrayInitCollector<S, T, K, B>
+        >
+        callocArray(sType: Int, inits: C, create: () -> B): B {
     val buffer: B = create()
     for (i in 0 until inits.size) {
         buffer.position = i
@@ -104,11 +119,11 @@ inline fun <
 
 @VkStruct
 open class KVkStructArrayInitCollector<
-    S : Struct,
-    T : StructBuffer<S, T>,
-    K : KVkStruct<S>,
-    B : KVkStructArray<S, T, K>,
-    > {
+        S : Struct<S>,
+        T : StructBuffer<S, T>,
+        K : KVkStruct<S>,
+        B : KVkStructArray<S, T, K>,
+        > {
     private val initializers = mutableListOf<B.() -> Unit>()
 
     @VkStruct
@@ -120,4 +135,14 @@ open class KVkStructArrayInitCollector<
         get() = initializers.size
 
     operator fun get(i: Int) = initializers[i]
+}
+
+interface KVkBits {
+    val value: Int
+
+    fun check(flags: Int) = flags and value != 0
+}
+
+interface KVkFlags {
+    val flags: Int
 }

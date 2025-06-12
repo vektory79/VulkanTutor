@@ -78,6 +78,8 @@ value class KVkDeviceQueueCreateInfoArray(override val struct: VkDeviceQueueCrea
 
     override fun get(i: Int): KVkDeviceQueueCreateInfo = KVkDeviceQueueCreateInfo(struct.get(i))
 
+    override fun wrap(struct: VkDeviceQueueCreateInfo): KVkDeviceQueueCreateInfo = KVkDeviceQueueCreateInfo(struct)
+
     var pNext: Long
         get() = struct.pNext()
         set(value) {
