@@ -1,5 +1,5 @@
 val javaLangVersion = 17
-val lwjglVersion = "3.3.3"
+val lwjglVersion = "3.3.6"
 
 plugins {
     id("org.jetbrains.kotlin.jvm") version ("2.1.21")
