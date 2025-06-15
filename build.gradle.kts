@@ -2,7 +2,7 @@ val javaLangVersion = 17
 val lwjglVersion = "3.3.6"
 
 plugins {
-    id("org.jetbrains.kotlin.jvm") version ("2.1.21")
+    kotlin("jvm") version "2.1.21"
 }
 
 group = "me.vektory79.vulkan.tutor"
@@ -78,7 +78,7 @@ dependencies {
     sources(group = "org.lwjgl", name = "lwjgl-vulkan", version = lwjglVersion, classifier = "sources")
 }
 kotlin {
-    jvmToolchain(17)
+    jvmToolchain(21)
 }
 
 val downloadFromRepository by tasks.registering(Copy::class) {
