@@ -5,7 +5,6 @@ import me.vektory79.vulkan.kotlin.KVkStructArray
 import me.vektory79.vulkan.kotlin.VkStruct
 import me.vektory79.vulkan.kotlin.flags.KVkColorSpaceKHR
 import me.vektory79.vulkan.kotlin.flags.KVkFormat
-import org.lwjgl.vulkan.VkExtensionProperties
 import org.lwjgl.vulkan.VkSurfaceFormatKHR
 
 @VkStruct
@@ -21,10 +20,9 @@ value class KVkSurfaceFormatKHRArray(override val struct: VkSurfaceFormatKHR.Buf
     KVkStructArray<VkSurfaceFormatKHR, VkSurfaceFormatKHR.Buffer, KVkSurfaceFormatKHR> {
     override var sType: Int
         get() = 0
-        set(_) {
-        }
+        set(_) {}
 
-    override fun get(i: Int): KVkSurfaceFormatKHR = KVkSurfaceFormatKHR(struct.get(i))
+    override fun get(i: Int): KVkSurfaceFormatKHR = KVkSurfaceFormatKHR(struct[i])
 
     override fun wrap(struct: VkSurfaceFormatKHR): KVkSurfaceFormatKHR = KVkSurfaceFormatKHR(struct)
 }

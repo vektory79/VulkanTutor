@@ -4,7 +4,6 @@ import org.lwjgl.system.MemoryStack
 import org.lwjgl.system.Struct
 import org.lwjgl.system.StructBuffer
 import java.util.function.Consumer
-import java.util.stream.Stream
 
 @DslMarker
 annotation class VkStruct
@@ -13,12 +12,12 @@ interface KVkStruct<T : Struct<T>> {
     val struct: T
 }
 
-context(MemoryStack)
+context(stack: MemoryStack)
 inline fun <S : Struct<S>, K : KVkStruct<S>> calloc(
     noinline init: K.() -> Unit,
     create: context(MemoryStack) () -> K
 ): K =
-    create(this@MemoryStack).apply {
+    create(stack).apply {
         init()
     }
 

@@ -38,9 +38,9 @@ class KVkInstance(handle: Long, ci: VkInstanceCreateInfo, val allocator: VkAlloc
         vkDestroyInstance(this, allocator)
     }
 
-    context(MemoryStack)
+    context(stack: MemoryStack)
     fun createDebugUtilsMessenger(createInfo: KVkDebugUtilsMessengerCreateInfoEXT): Long {
-        val pDebugMessenger: LongBuffer = longs(VK_NULL_HANDLE)
+        val pDebugMessenger: LongBuffer = stack.longs(VK_NULL_HANDLE)
         checkedExtensionCall("vkCreateDebugUtilsMessengerEXT") {
             EXTDebugUtils.vkCreateDebugUtilsMessengerEXT(
                 this,
@@ -59,37 +59,37 @@ class KVkInstance(handle: Long, ci: VkInstanceCreateInfo, val allocator: VkAlloc
         }
     }
 
-    context(MemoryStack)
+    context(stack: MemoryStack)
     fun getPhysicalDevices(): PhysicalDevices {
-        val deviceCount = ints(0)
+        val deviceCount = stack.ints(0)
         checkVkResult(vkEnumeratePhysicalDevices(this, deviceCount, null))
         if (deviceCount[0] == 0) {
             throw RuntimeException("Failed to find GPUs with Vulkan support")
         }
-        val ppPhysicalDevices: PointerBuffer = mallocPointer(deviceCount[0])
+        val ppPhysicalDevices: PointerBuffer = stack.mallocPointer(deviceCount[0])
         vkEnumeratePhysicalDevices(this, deviceCount, ppPhysicalDevices)
         return PhysicalDevices(ppPhysicalDevices)
     }
 
     companion object {
-        context(MemoryStack)
+        context(stack: MemoryStack)
         fun vkCreateInstance(
             init: context(MemoryStack) () -> KVkInstanceCreateInfo
         ): KVkInstance {
-            val createInfo = init(this@MemoryStack)
+            val createInfo = init()
             // We need to retrieve the pointer of the created instance
-            val instancePtr = mallocPointer(1)
+            val instancePtr = stack.mallocPointer(1)
             checkVkResult(vkCreateInstance(createInfo.struct, null, instancePtr))
             return KVkInstance(instancePtr[0], createInfo.struct)
         }
     }
 }
 
-context(MemoryStack)
+context(stack: MemoryStack)
 fun vkGetInstanceLayerProperties(): VkLayerProperties.Buffer {
-    val layerCount = ints(0)
+    val layerCount = stack.ints(0)
     vkEnumerateInstanceLayerProperties(layerCount, null)
-    val availableLayers: VkLayerProperties.Buffer = VkLayerProperties.malloc(layerCount[0], this@MemoryStack)
+    val availableLayers: VkLayerProperties.Buffer = VkLayerProperties.malloc(layerCount[0], stack)
     vkEnumerateInstanceLayerProperties(layerCount, availableLayers)
     return availableLayers
 }

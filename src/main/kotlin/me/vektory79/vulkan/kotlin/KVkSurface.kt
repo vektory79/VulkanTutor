@@ -12,9 +12,9 @@ class KVkSurface(private val instance: KVkInstance, val surface: Long) {
     }
 
     companion object {
-        context(MemoryStack)
+        context(stack: MemoryStack)
         fun glfwCreateWindowSurface(instance: KVkInstance, window: Long): KVkSurface {
-            val pSurface = longs(VK_NULL_HANDLE)
+            val pSurface = stack.longs(VK_NULL_HANDLE)
             if (glfwCreateWindowSurface(instance, window, null, pSurface) != VK_SUCCESS) {
                 throw RuntimeException("Failed to create window surface")
             }

@@ -36,12 +36,12 @@ value class KVkInstanceCreateInfo(override val struct: VkInstanceCreateInfo) : K
         }
 
     companion object {
-        context(MemoryStack)
+        context(stack: MemoryStack)
         @VkStruct
         fun vkInstanceCreateInfo(init: KVkInstanceCreateInfo.() -> Unit): KVkInstanceCreateInfo =
             calloc(init) {
                 KVkInstanceCreateInfo(
-                    VkInstanceCreateInfo.calloc(this@MemoryStack)
+                    VkInstanceCreateInfo.calloc(stack)
                         .apply { sType(VK10.VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO) })
             }
     }

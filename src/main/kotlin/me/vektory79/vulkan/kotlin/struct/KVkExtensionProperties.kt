@@ -21,10 +21,9 @@ value class KVkExtensionPropertiesArray(override val struct: VkExtensionProperti
     KVkStructArray<VkExtensionProperties, VkExtensionProperties.Buffer, KVkExtensionProperties> {
     override var sType: Int
         get() = 0
-        set(_) {
-        }
+        set(_) {}
 
-    override fun get(i: Int): KVkExtensionProperties = KVkExtensionProperties(struct.get(i))
+    override fun get(i: Int): KVkExtensionProperties = KVkExtensionProperties(struct[i])
 
     override fun wrap(struct: VkExtensionProperties): KVkExtensionProperties = KVkExtensionProperties(struct)
 }

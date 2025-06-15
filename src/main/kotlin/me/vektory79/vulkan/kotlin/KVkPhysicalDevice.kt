@@ -21,23 +21,23 @@ import org.lwjgl.vulkan.VkSurfaceFormatKHR
 import java.nio.IntBuffer
 
 class KVkPhysicalDevice(handle: Long, instance: VkInstance) : VkPhysicalDevice(handle, instance) {
-    context(MemoryStack)
+    context(stack: MemoryStack)
     val queueFamilyProperties: KVkQueueFamilyPropertiesArray
         get() {
-            val queueFamilyCount = ints(0)
+            val queueFamilyCount = stack.ints(0)
             vkGetPhysicalDeviceQueueFamilyProperties(this, queueFamilyCount, null)
-            val queueFamilies = VkQueueFamilyProperties.malloc(queueFamilyCount[0], this@MemoryStack)
+            val queueFamilies = VkQueueFamilyProperties.malloc(queueFamilyCount[0], stack)
             vkGetPhysicalDeviceQueueFamilyProperties(this, queueFamilyCount, queueFamilies)
             return KVkQueueFamilyPropertiesArray(queueFamilies)
         }
 
-    context(MemoryStack)
+    context(stack: MemoryStack)
     val availableExtensions: KVkExtensionPropertiesArray
         get() {
-            val extensionCount = ints(0)
+            val extensionCount = stack.ints(0)
             vkEnumerateDeviceExtensionProperties(this, null as String?, extensionCount, null)
             val availableExtensions =
-                VkExtensionProperties.malloc(extensionCount[0], this@MemoryStack)
+                VkExtensionProperties.malloc(extensionCount[0], stack)
             vkEnumerateDeviceExtensionProperties(this, null as String?, extensionCount, availableExtensions)
             return KVkExtensionPropertiesArray(availableExtensions)
         }
@@ -55,33 +55,33 @@ class KVkPhysicalDevice(handle: Long, instance: VkInstance) : VkPhysicalDevice(h
         }
     }
 
-    context(MemoryStack)
+    context(stack: MemoryStack)
     fun getSurfaceCapabilities(surface: KVkSurface): KVkSurfaceCapabilitiesKHR {
-        val capabilities = VkSurfaceCapabilitiesKHR.malloc(this@MemoryStack)
+        val capabilities = VkSurfaceCapabilitiesKHR.malloc(stack)
         vkGetPhysicalDeviceSurfaceCapabilitiesKHR(this, surface.surface, capabilities)
         return KVkSurfaceCapabilitiesKHR(capabilities)
     }
 
-    context(MemoryStack)
+    context(stack: MemoryStack)
     fun getSurfaceFormats(surface: KVkSurface): KVkSurfaceFormatKHRArray? {
-        val count: IntBuffer = ints(0)
+        val count: IntBuffer = stack.ints(0)
         KHRSurface.vkGetPhysicalDeviceSurfaceFormatsKHR(this, surface.surface, count, null)
 
         if (count[0] != 0) {
-            val formats = VkSurfaceFormatKHR.malloc(count[0], this@MemoryStack)
+            val formats = VkSurfaceFormatKHR.malloc(count[0], stack)
             KHRSurface.vkGetPhysicalDeviceSurfaceFormatsKHR(this, surface.surface, count, formats)
             return KVkSurfaceFormatKHRArray(formats)
         }
         return null
     }
 
-    context(MemoryStack)
+    context(stack: MemoryStack)
     fun getPhysicalDeviceSurfacePresentModes(surface: KVkSurface): IntBuffer? {
-        val count: IntBuffer = ints(0)
+        val count: IntBuffer = stack.ints(0)
         KHRSurface.vkGetPhysicalDeviceSurfacePresentModesKHR(this, surface.surface, count, null)
 
         if (count[0] != 0) {
-            val presentModes = mallocInt(count[0])
+            val presentModes = stack.mallocInt(count[0])
             KHRSurface.vkGetPhysicalDeviceSurfacePresentModesKHR(this, surface.surface, count, presentModes)
             return presentModes
         }

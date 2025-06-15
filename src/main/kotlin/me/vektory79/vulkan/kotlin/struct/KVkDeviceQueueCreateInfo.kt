@@ -47,12 +47,12 @@ value class KVkDeviceQueueCreateInfo(override val struct: VkDeviceQueueCreateInf
         }
 
     companion object {
-        context(MemoryStack)
+        context(stack: MemoryStack)
         @VkStruct
         fun vkDeviceQueueCreateInfo(init: KVkDeviceQueueCreateInfo.() -> Unit): KVkDeviceQueueCreateInfo =
             calloc(init) {
                 KVkDeviceQueueCreateInfo(
-                    VkDeviceQueueCreateInfo.calloc(this@MemoryStack)
+                    VkDeviceQueueCreateInfo.calloc(stack)
                         .apply { sType(VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO) })
             }
     }
@@ -111,7 +111,7 @@ value class KVkDeviceQueueCreateInfoArray(override val struct: VkDeviceQueueCrea
         }
 
     companion object {
-        context(MemoryStack)
+        context(stack: MemoryStack)
         @VkStruct
         fun vkDeviceQueueCreateInfoArray(
             init: KVkDeviceQueueCreateInfoInitCollector.() -> Unit
@@ -124,7 +124,7 @@ value class KVkDeviceQueueCreateInfoArray(override val struct: VkDeviceQueueCrea
             ) {
                 KVkDeviceQueueCreateInfoArray(
                     VkDeviceQueueCreateInfo
-                        .calloc(collector.size, this@MemoryStack)
+                        .calloc(collector.size, stack)
                 )
             }
         }

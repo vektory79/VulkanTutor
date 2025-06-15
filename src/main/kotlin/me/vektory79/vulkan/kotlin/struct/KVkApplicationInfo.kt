@@ -46,12 +46,12 @@ value class KVkApplicationInfo(override val struct: VkApplicationInfo) : KVkStru
         }
 
     companion object {
-        context(MemoryStack)
+        context(stack: MemoryStack)
         @VkStruct
         fun vkApplicationInfo(init: KVkApplicationInfo.() -> Unit): KVkApplicationInfo =
             calloc(init) {
                 KVkApplicationInfo(
-                    VkApplicationInfo.calloc(this@MemoryStack).apply { sType(VK10.VK_STRUCTURE_TYPE_APPLICATION_INFO) })
+                    VkApplicationInfo.calloc(stack).apply { sType(VK10.VK_STRUCTURE_TYPE_APPLICATION_INFO) })
             }
     }
 }

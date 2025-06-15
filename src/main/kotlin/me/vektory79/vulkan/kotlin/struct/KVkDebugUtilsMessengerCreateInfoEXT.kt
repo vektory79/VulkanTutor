@@ -48,12 +48,12 @@ value class KVkDebugUtilsMessengerCreateInfoEXT(override val struct: VkDebugUtil
             struct.pUserData(value)
         }
     companion object {
-        context(MemoryStack)
+        context(stack: MemoryStack)
         @VkStruct
         fun vkDebugUtilsMessengerCreateInfoEXT(init: KVkDebugUtilsMessengerCreateInfoEXT.() -> Unit): KVkDebugUtilsMessengerCreateInfoEXT =
             calloc(init) {
                 KVkDebugUtilsMessengerCreateInfoEXT(
-                    VkDebugUtilsMessengerCreateInfoEXT.calloc(this@MemoryStack)
+                    VkDebugUtilsMessengerCreateInfoEXT.calloc(stack)
                         .apply { sType(EXTDebugUtils.VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT) })
             }
     }

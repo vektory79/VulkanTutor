@@ -328,12 +328,12 @@ class KVkPhysicalDeviceFeatures(override val struct: VkPhysicalDeviceFeatures) :
         }
 
     companion object {
-        context(MemoryStack)
+        context(stack: MemoryStack)
         @VkStruct
         fun vkPhysicalDeviceFeatures(init: KVkPhysicalDeviceFeatures.() -> Unit = {}): KVkPhysicalDeviceFeatures =
             calloc(init) {
                 KVkPhysicalDeviceFeatures(
-                    VkPhysicalDeviceFeatures.calloc(this@MemoryStack)
+                    VkPhysicalDeviceFeatures.calloc(stack)
                 )
             }
     }

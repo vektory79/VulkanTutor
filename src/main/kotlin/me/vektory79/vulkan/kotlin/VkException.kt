@@ -175,7 +175,7 @@ fun describeResultCode(code: Int): VkResultCode =
         VK_ERROR_INVALID_OPAQUE_CAPTURE_ADDRESS -> VkResultCode.ERROR_INVALID_OPAQUE_CAPTURE_ADDRESS
         VK_ERROR_FULL_SCREEN_EXCLUSIVE_MODE_LOST_EXT -> VkResultCode.ERROR_FULL_SCREEN_EXCLUSIVE_MODE_LOST_EXT
         VK_ERROR_UNKNOWN -> VkResultCode.ERROR_UNKNOWN
-        else -> throw IllegalStateException("Unknown Vulkan result code")
+        else -> error("Unknown Vulkan result code")
     }
 
 class VkException(code: Int) : RuntimeException() {

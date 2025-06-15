@@ -49,12 +49,12 @@ value class KVkDeviceCreateInfo(override val struct: VkDeviceCreateInfo) :
         }
 
     companion object {
-        context(MemoryStack)
+        context(stack: MemoryStack)
         @VkStruct
         fun vkDeviceCreateInfo(init: KVkDeviceCreateInfo.() -> Unit): KVkDeviceCreateInfo =
             calloc(init) {
                 KVkDeviceCreateInfo(
-                    VkDeviceCreateInfo.calloc(this@MemoryStack)
+                    VkDeviceCreateInfo.calloc(stack)
                         .apply { sType(VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO) })
             }
     }

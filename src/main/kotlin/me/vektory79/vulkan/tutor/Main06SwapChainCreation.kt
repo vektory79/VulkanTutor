@@ -129,13 +129,13 @@ class HelloTriangleApplication06 {
         }
     }
 
-    context(MemoryStack)
+    context(stack: MemoryStack)
     private fun getRequiredExtensions(): PointerBuffer? {
         val glfwExtensions = glfwGetRequiredInstanceExtensions()
         if (ENABLE_VALIDATION_LAYERS && glfwExtensions != null) {
-            return mallocPointer(glfwExtensions.capacity() + 1).apply {
+            return stack.mallocPointer(glfwExtensions.capacity() + 1).apply {
                 put(glfwExtensions)
-                put(UTF8(VK_EXT_DEBUG_UTILS_EXTENSION_NAME))
+                put(stack.UTF8(VK_EXT_DEBUG_UTILS_EXTENSION_NAME))
                 // Rewind the buffer before returning it to reset its position back to 0
                 rewind()
             }
@@ -143,11 +143,11 @@ class HelloTriangleApplication06 {
         return glfwExtensions
     }
 
-    context(MemoryStack)
+    context(stack: MemoryStack)
     private fun validationLayersAsPointerBuffer(): PointerBuffer? {
-        val buffer = mallocPointer(VALIDATION_LAYERS.size)
+        val buffer = stack.mallocPointer(VALIDATION_LAYERS.size)
         VALIDATION_LAYERS.stream()
-            .map(this@MemoryStack::UTF8)
+            .map(stack::UTF8)
             .forEach(buffer::put)
         return buffer.rewind()
     }
@@ -219,7 +219,7 @@ class HelloTriangleApplication06 {
         }
     }
 
-    context(MemoryStack)
+    context(_: MemoryStack)
     private fun KVkPhysicalDevice.querySwapChainSupport(): SwapChainSupportDetails {
         val details = SwapChainSupportDetails()
         details.capabilities = getSurfaceCapabilities(surface)

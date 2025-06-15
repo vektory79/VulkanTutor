@@ -1,4 +1,5 @@
 import org.gradle.kotlin.dsl.`kotlin-dsl`
+import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -20,8 +21,8 @@ repositories {
 }
 
 val compileKotlin: KotlinCompile by tasks
-compileKotlin.kotlinOptions {
-    languageVersion = "1.8"
+compileKotlin.compilerOptions {
+    languageVersion.set(KotlinVersion.KOTLIN_1_8)
 }
 
 dependencies {

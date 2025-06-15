@@ -37,7 +37,6 @@ import org.lwjgl.vulkan.EXTDebugUtils.VK_EXT_DEBUG_UTILS_EXTENSION_NAME
 import org.lwjgl.vulkan.VK10.VK_API_VERSION_1_0
 import org.lwjgl.vulkan.VK10.VK_FALSE
 import org.lwjgl.vulkan.VK10.VK_MAKE_VERSION
-import org.lwjgl.vulkan.VK10.VK_QUEUE_GRAPHICS_BIT
 import org.lwjgl.vulkan.VkDebugUtilsMessengerCallbackDataEXT
 import org.lwjgl.vulkan.VkDebugUtilsMessengerCallbackEXTI
 import org.lwjgl.vulkan.VkLayerProperties
@@ -125,13 +124,13 @@ class HelloTriangleApplication05 {
         }
     }
 
-    context(MemoryStack)
+    context(stack: MemoryStack)
     private fun getRequiredExtensions(): PointerBuffer? {
         val glfwExtensions = glfwGetRequiredInstanceExtensions()
         if (ENABLE_VALIDATION_LAYERS && glfwExtensions != null) {
-            return mallocPointer(glfwExtensions.capacity() + 1).apply {
+            return stack.mallocPointer(glfwExtensions.capacity() + 1).apply {
                 put(glfwExtensions)
-                put(UTF8(VK_EXT_DEBUG_UTILS_EXTENSION_NAME))
+                put(stack.UTF8(VK_EXT_DEBUG_UTILS_EXTENSION_NAME))
                 // Rewind the buffer before returning it to reset its position back to 0
                 rewind()
             }
@@ -139,11 +138,11 @@ class HelloTriangleApplication05 {
         return glfwExtensions
     }
 
-    context(MemoryStack)
+    context(stack: MemoryStack)
     private fun validationLayersAsPointerBuffer(): PointerBuffer? {
-        val buffer = mallocPointer(VALIDATION_LAYERS.size)
+        val buffer = stack.mallocPointer(VALIDATION_LAYERS.size)
         VALIDATION_LAYERS.stream()
-            .map(this@MemoryStack::UTF8)
+            .map(stack::UTF8)
             .forEach(buffer::put)
         return buffer.rewind()
     }

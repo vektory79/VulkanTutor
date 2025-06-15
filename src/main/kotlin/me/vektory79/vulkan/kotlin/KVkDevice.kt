@@ -14,9 +14,9 @@ class KVkDevice(val struct: VkDevice) {
 
     companion object {
 
-        context(MemoryStack)
+        context(stack: MemoryStack)
         fun vkCreateDevice(physicalDevice: KVkPhysicalDevice, createInfo: KVkDeviceCreateInfo): KVkDevice {
-            val pDevice: PointerBuffer = pointers(VK10.VK_NULL_HANDLE)
+            val pDevice: PointerBuffer = stack.pointers(VK10.VK_NULL_HANDLE)
             checkVkResult(VK10.vkCreateDevice(physicalDevice, createInfo.struct, null, pDevice))
             return KVkDevice(VkDevice(pDevice[0], physicalDevice, createInfo.struct))
         }

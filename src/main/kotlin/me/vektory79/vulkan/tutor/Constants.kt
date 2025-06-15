@@ -5,7 +5,7 @@ import org.lwjgl.system.Configuration.DEBUG
 const val WIDTH = 800
 const val HEIGHT = 600
 
-val ENABLE_VALIDATION_LAYERS: Boolean = DEBUG.get(true)
+val ENABLE_VALIDATION_LAYERS: Boolean = DEBUG[true]
 
 val VALIDATION_LAYERS: Set<String> =
     if (ENABLE_VALIDATION_LAYERS) setOf("VK_LAYER_KHRONOS_validation")

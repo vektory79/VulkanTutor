@@ -2,7 +2,7 @@ val javaLangVersion = 17
 val lwjglVersion = "3.3.3"
 
 plugins {
-    id("org.jetbrains.kotlin.jvm") version ("2.0.0")
+    id("org.jetbrains.kotlin.jvm") version ("2.1.21")
 }
 
 group = "me.vektory79.vulkan.tutor"
@@ -35,7 +35,7 @@ repositories {
 
 tasks.named("compileKotlin", org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask::class.java) {
     compilerOptions {
-        freeCompilerArgs.add("-Xcontext-receivers")
+        freeCompilerArgs.add("-Xcontext-parameters")
     }
 }
 
