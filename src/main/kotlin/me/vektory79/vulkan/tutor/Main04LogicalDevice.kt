@@ -36,11 +36,9 @@ import org.lwjgl.vulkan.EXTDebugUtils.VK_EXT_DEBUG_UTILS_EXTENSION_NAME
 import org.lwjgl.vulkan.VK10.VK_API_VERSION_1_0
 import org.lwjgl.vulkan.VK10.VK_FALSE
 import org.lwjgl.vulkan.VK10.VK_MAKE_VERSION
-import org.lwjgl.vulkan.VK10.VK_QUEUE_GRAPHICS_BIT
 import org.lwjgl.vulkan.VkDebugUtilsMessengerCallbackDataEXT
 import org.lwjgl.vulkan.VkDebugUtilsMessengerCallbackEXTI
 import org.lwjgl.vulkan.VkLayerProperties
-import java.util.stream.Collectors
 
 @Suppress("UNUSED_PARAMETER")
 private fun debugCallback(messageSeverity: Int, messageType: Int, pCallbackData: Long, pUserData: Long): Int {
@@ -218,9 +216,9 @@ class HelloTriangleApplication04 {
     private fun checkValidationLayerSupport(): Boolean {
         stackPush {
             val availableLayers = vkGetInstanceLayerProperties()
-            val availableLayerNames = availableLayers.stream()
+            val availableLayerNames = availableLayers
                 .map { obj: VkLayerProperties -> obj.layerNameString() }
-                .collect(Collectors.toSet())
+                .toSet()
             return availableLayerNames.containsAll(VALIDATION_LAYERS)
         }
     }

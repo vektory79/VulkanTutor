@@ -40,7 +40,6 @@ import org.lwjgl.vulkan.VK10.VK_MAKE_VERSION
 import org.lwjgl.vulkan.VkDebugUtilsMessengerCallbackDataEXT
 import org.lwjgl.vulkan.VkDebugUtilsMessengerCallbackEXTI
 import org.lwjgl.vulkan.VkLayerProperties
-import java.util.stream.Collectors
 import java.util.stream.IntStream
 
 @Suppress("UNUSED_PARAMETER")
@@ -236,9 +235,9 @@ class HelloTriangleApplication05 {
     private fun checkValidationLayerSupport(): Boolean {
         stackPush {
             val availableLayers = vkGetInstanceLayerProperties()
-            val availableLayerNames = availableLayers.stream()
+            val availableLayerNames = availableLayers
                 .map { obj: VkLayerProperties -> obj.layerNameString() }
-                .collect(Collectors.toSet())
+                .toSet()
             return availableLayerNames.containsAll(VALIDATION_LAYERS)
         }
     }
