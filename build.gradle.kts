@@ -33,12 +33,6 @@ repositories {
     mavenCentral()
 }
 
-tasks.named("compileKotlin", org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask::class.java) {
-    compilerOptions {
-        freeCompilerArgs.add("-Xcontext-parameters")
-    }
-}
-
 java {
     toolchain {
         languageVersion.set(JavaLanguageVersion.of(javaLangVersion))
@@ -76,9 +70,24 @@ dependencies {
     if (lwjglNatives == "natives-macos" || lwjglNatives == "natives-macos-arm64") runtimeOnly("org.lwjgl", "lwjgl-vulkan", classifier = lwjglNatives)
 
     sources(group = "org.lwjgl", name = "lwjgl-vulkan", version = lwjglVersion, classifier = "sources")
+
+    testImplementation(platform("org.junit:junit-bom:5.11.3"))
+    testImplementation("org.junit.jupiter:junit-jupiter")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    testImplementation("org.assertj:assertj-core:3.26.3")
 }
+
+tasks.test {
+    useJUnitPlatform()
+    jvmArgs("-Dorg.lwjgl.system.stackSize=2048")
+    maxParallelForks = 1
+}
+
 kotlin {
     jvmToolchain(21)
+    compilerOptions {
+        freeCompilerArgs.add("-Xcontext-parameters")
+    }
 }
 
 val downloadFromRepository by tasks.registering(Copy::class) {
