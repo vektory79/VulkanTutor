@@ -98,7 +98,6 @@ value class KVkApplicationInfo(override val struct: VkApplicationInfo) : KVkStru
          * @return инициализированная структура.
          */
         context(stack: MemoryStack)
-        @VkStruct
         fun vkApplicationInfo(init: KVkApplicationInfo.() -> Unit): KVkApplicationInfo =
             calloc(init) {
                 KVkApplicationInfo(

@@ -87,7 +87,6 @@ value class KVkDeviceQueueCreateInfo(override val struct: VkDeviceQueueCreateInf
          * @return инициализированная структура.
          */
         context(stack: MemoryStack)
-        @VkStruct
         fun vkDeviceQueueCreateInfo(init: KVkDeviceQueueCreateInfo.() -> Unit): KVkDeviceQueueCreateInfo =
             calloc(init) {
                 KVkDeviceQueueCreateInfo(
@@ -195,7 +194,6 @@ value class KVkDeviceQueueCreateInfoArray(override val struct: VkDeviceQueueCrea
          * @return заполненный массив структур.
          */
         context(stack: MemoryStack)
-        @VkStruct
         fun vkDeviceQueueCreateInfoArray(
             init: KVkDeviceQueueCreateInfoInitCollector.() -> Unit
         ): KVkDeviceQueueCreateInfoArray {

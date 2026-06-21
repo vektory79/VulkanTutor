@@ -399,7 +399,6 @@ class KVkPhysicalDeviceFeatures(override val struct: VkPhysicalDeviceFeatures) :
          * @return инициализированная структура.
          */
         context(stack: MemoryStack)
-        @VkStruct
         fun vkPhysicalDeviceFeatures(init: KVkPhysicalDeviceFeatures.() -> Unit = {}): KVkPhysicalDeviceFeatures =
             calloc(init) {
                 KVkPhysicalDeviceFeatures(

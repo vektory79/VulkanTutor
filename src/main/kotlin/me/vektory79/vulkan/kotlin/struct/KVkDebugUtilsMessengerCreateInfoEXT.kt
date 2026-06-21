@@ -84,7 +84,6 @@ value class KVkDebugUtilsMessengerCreateInfoEXT(override val struct: VkDebugUtil
          * @return инициализированная структура.
          */
         context(stack: MemoryStack)
-        @VkStruct
         fun vkDebugUtilsMessengerCreateInfoEXT(init: KVkDebugUtilsMessengerCreateInfoEXT.() -> Unit): KVkDebugUtilsMessengerCreateInfoEXT =
             calloc(init) {
                 KVkDebugUtilsMessengerCreateInfoEXT(

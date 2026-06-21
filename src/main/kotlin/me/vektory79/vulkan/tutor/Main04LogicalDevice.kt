@@ -12,6 +12,7 @@ import me.vektory79.vulkan.kotlin.struct.KVkDeviceQueueCreateInfoArray
 import me.vektory79.vulkan.kotlin.struct.KVkInstanceCreateInfo
 import me.vektory79.vulkan.kotlin.struct.KVkPhysicalDeviceFeatures
 import me.vektory79.vulkan.kotlin.vkGetInstanceLayerProperties
+import me.vektory79.vulkan.kotlin.utf8
 import org.lwjgl.PointerBuffer
 import org.lwjgl.glfw.GLFW.GLFW_CLIENT_API
 import org.lwjgl.glfw.GLFW.GLFW_FALSE
@@ -102,9 +103,9 @@ class HelloTriangleApplication04 {
             instance = KVkInstance.vkCreateInstance {
                 KVkInstanceCreateInfo.vkInstanceCreateInfo {
                     pApplicationInfo = KVkApplicationInfo.vkApplicationInfo {
-                        pApplicationName = this@stackPush.UTF8("Hello Triangle")
+                        pApplicationName = "Hello Triangle".utf8
                         applicationVersion = VK_MAKE_VERSION(1, 0, 0)
-                        pEngineName = this@stackPush.UTF8("No Engine")
+                        pEngineName = "No Engine".utf8
                         engineVersion = VK_MAKE_VERSION(1, 0, 0)
                         apiVersion = VK_API_VERSION_1_0
                     }
@@ -123,7 +124,7 @@ class HelloTriangleApplication04 {
         if (ENABLE_VALIDATION_LAYERS && glfwExtensions != null) {
             return stack.mallocPointer(glfwExtensions.capacity() + 1).apply {
                 put(glfwExtensions)
-                put(stack.UTF8(VK_EXT_DEBUG_UTILS_EXTENSION_NAME))
+                put(VK_EXT_DEBUG_UTILS_EXTENSION_NAME.utf8)
                 // Rewind the buffer before returning it to reset its position back to 0
                 rewind()
             }
@@ -135,7 +136,7 @@ class HelloTriangleApplication04 {
     private fun validationLayersAsPointerBuffer(): PointerBuffer? {
         val buffer = stack.mallocPointer(VALIDATION_LAYERS.size)
         VALIDATION_LAYERS.stream()
-            .map(stack::UTF8)
+            .map { it.utf8 }
             .forEach(buffer::put)
         return buffer.rewind()
     }

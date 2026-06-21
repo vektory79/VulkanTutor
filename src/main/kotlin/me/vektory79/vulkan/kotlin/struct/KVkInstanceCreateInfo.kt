@@ -62,7 +62,6 @@ value class KVkInstanceCreateInfo(override val struct: VkInstanceCreateInfo) : K
          * @return инициализированная структура.
          */
         context(stack: MemoryStack)
-        @VkStruct
         fun vkInstanceCreateInfo(init: KVkInstanceCreateInfo.() -> Unit): KVkInstanceCreateInfo =
             calloc(init) {
                 KVkInstanceCreateInfo(

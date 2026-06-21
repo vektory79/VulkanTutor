@@ -91,7 +91,6 @@ value class KVkDeviceCreateInfo(override val struct: VkDeviceCreateInfo) :
          * @return инициализированная структура.
          */
         context(stack: MemoryStack)
-        @VkStruct
         fun vkDeviceCreateInfo(init: KVkDeviceCreateInfo.() -> Unit): KVkDeviceCreateInfo =
             calloc(init) {
                 KVkDeviceCreateInfo(

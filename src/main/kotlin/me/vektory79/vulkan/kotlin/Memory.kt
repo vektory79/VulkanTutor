@@ -12,13 +12,18 @@ import kotlin.contracts.contract
  * Получает текущий стек через [stackGet], создаёт новый фрейм ([push]),
  * выполняет операцию и автоматически очищает фрейм после завершения.
  *
+ * Контекстный параметр [stack] доступен внутри блока, что позволяет
+ * использовать extension-функции, зависящие от [MemoryStack] (например, [String.utf8]).
+ *
  * ```kotlin
  * stackPush {
  *     val buf = stack.malloc(256)
+ *     pApplicationName = "Hello Triangle".utf8
  *     // buf автоматически освобождается при выходе из блока
  * }
  * ```
  *
+ * @param stack текущий [MemoryStack], доступный в блоке операции.
  * @param R тип возвращаемого значения операции.
  * @param operation лямбда, выполняемая в контексте [MemoryStack].
  */
@@ -30,6 +35,9 @@ inline fun <R> stackPush(operation: MemoryStack.() -> R) {
     }
     stackGet().use { stack ->
         stack.push()
-        stack.operation()
+        stack.run {
+            val stack: MemoryStack = this
+            operation()
+        }
     }
 }
