@@ -1,8 +1,8 @@
-val javaLangVersion = 17
-val lwjglVersion = "3.3.6"
+val javaLangVersion = 25
+val lwjglVersion = "3.4.1"
 
 plugins {
-    kotlin("jvm") version "2.1.21"
+    kotlin("jvm") version "2.3.20"
 }
 
 group = "me.vektory79.vulkan.tutor"
@@ -46,7 +46,6 @@ val sources: Configuration by configurations.creating {
 
 dependencies {
     implementation ("org.jetbrains.kotlin:kotlin-stdlib")
-    implementation ("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
 
     implementation(platform("org.lwjgl:lwjgl-bom:$lwjglVersion"))
 
@@ -71,10 +70,10 @@ dependencies {
 
     sources(group = "org.lwjgl", name = "lwjgl-vulkan", version = lwjglVersion, classifier = "sources")
 
-    testImplementation(platform("org.junit:junit-bom:5.11.3"))
+    testImplementation(platform("org.junit:junit-bom:5.12.1"))
     testImplementation("org.junit.jupiter:junit-jupiter")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-    testImplementation("org.assertj:assertj-core:3.26.3")
+    testImplementation("org.assertj:assertj-core:3.27.7")
 }
 
 tasks.test {
@@ -84,7 +83,7 @@ tasks.test {
 }
 
 kotlin {
-    jvmToolchain(21)
+    jvmToolchain(javaLangVersion)
     compilerOptions {
         freeCompilerArgs.add("-Xcontext-parameters")
     }

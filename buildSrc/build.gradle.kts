@@ -22,7 +22,7 @@ repositories {
 
 val compileKotlin: KotlinCompile by tasks
 compileKotlin.compilerOptions {
-    languageVersion.set(KotlinVersion.KOTLIN_1_8)
+    languageVersion.set(KotlinVersion.KOTLIN_2_2)
 }
 
 dependencies {

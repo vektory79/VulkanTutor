@@ -90,9 +90,9 @@ class HelloTriangleApplication02 {
             instance = KVkInstance.vkCreateInstance {
                 KVkInstanceCreateInfo.vkInstanceCreateInfo {
                     pApplicationInfo = KVkApplicationInfo.vkApplicationInfo {
-                        pApplicationName = UTF8("Hello Triangle")
+                        pApplicationName = this@stackPush.UTF8("Hello Triangle")
                         applicationVersion = VK_MAKE_VERSION(1, 0, 0)
-                        pEngineName = UTF8("No Engine")
+                        pEngineName = this@stackPush.UTF8("No Engine")
                         engineVersion = VK_MAKE_VERSION(1, 0, 0)
                         apiVersion = VK_API_VERSION_1_0
                     }
