@@ -20,6 +20,18 @@ import org.lwjgl.vulkan.VkInstanceCreateInfo
 import org.lwjgl.vulkan.VkLayerProperties
 import java.nio.LongBuffer
 
+/**
+ * Vulkan-инстанс — первая и обязательная точка входа в API.
+ *
+ * Инстанс управляет общими для всех устройств ресурсами: расширениями, слоями,
+ * отладочными мессенджерами. Через него перечисляются физические устройства
+ * ([getPhysicalDevices]) и создаются поверхности.
+ *
+ * Наследует [org.lwjgl.vulkan.VkInstance], добавляя Kotlin-обёртки над ключевыми
+ * методами и проверку результатов вызовов.
+ *
+ * @property allocator колбэки для аллокации памяти. По умолчанию `null`.
+ */
 class KVkInstance(handle: Long, ci: VkInstanceCreateInfo, val allocator: VkAllocationCallbacks? = null) :
     VkInstance(handle, ci) {
     private fun checkedExtensionCall(funcName: String, call: () -> Int) {
@@ -34,10 +46,24 @@ class KVkInstance(handle: Long, ci: VkInstanceCreateInfo, val allocator: VkAlloc
         )
     }
 
+    /**
+     * Уничтожает Vulkan-инстанс и освобождает все связанные с ним ресурсы.
+     *
+     * Вызывает ``vkDestroyInstance``. После вызова все устройства, поверхности и другие
+     * ресурсы, созданные через этот инстанс, становятся невалидными.
+     */
     fun destroy() {
         vkDestroyInstance(this, allocator)
     }
 
+    /**
+     * Создаёт мессенджер для отладочных сообщений (расширение EXT_debug_utils).
+     *
+     * Вызывает ``vkCreateDebugUtilsMessengerEXT``, если расширение доступно.
+     *
+     * @param createInfo параметры создания мессенджера.
+     * @return нативный хэндл мессенджера.
+     */
     context(stack: MemoryStack)
     fun createDebugUtilsMessenger(createInfo: KVkDebugUtilsMessengerCreateInfoEXT): Long {
         val pDebugMessenger: LongBuffer = stack.longs(VK_NULL_HANDLE)
@@ -52,6 +78,13 @@ class KVkInstance(handle: Long, ci: VkInstanceCreateInfo, val allocator: VkAlloc
         return pDebugMessenger[0]
     }
 
+    /**
+     * Уничтожает мессенджер отладочных сообщений.
+     *
+     * Вызывает ``vkDestroyDebugUtilsMessengerEXT``, если расширение доступно.
+     *
+     * @param debugMessenger нативный хэндл мессенджера, созданный через [createDebugUtilsMessenger].
+     */
     fun destroyDebugUtilsMessenger(debugMessenger: Long) {
         checkedExtensionCall("vkDestroyDebugUtilsMessengerEXT") {
             EXTDebugUtils.vkDestroyDebugUtilsMessengerEXT(this, debugMessenger, allocator)
@@ -59,6 +92,13 @@ class KVkInstance(handle: Long, ci: VkInstanceCreateInfo, val allocator: VkAlloc
         }
     }
 
+    /**
+     * Перечисляет доступные физические устройства (GPU), поддерживающие Vulkan.
+     *
+     * Вызывает ``vkEnumeratePhysicalDevices``. Если GPU не найдено, бросает исключение.
+     *
+     * @return коллекция физических устройств.
+     */
     context(stack: MemoryStack)
     fun getPhysicalDevices(): PhysicalDevices {
         val deviceCount = stack.ints(0)
@@ -72,6 +112,15 @@ class KVkInstance(handle: Long, ci: VkInstanceCreateInfo, val allocator: VkAlloc
     }
 
     companion object {
+        /**
+         * Создаёт Vulkan-инстанс — первую точку входа в API.
+         *
+         * Вызывает ``vkCreateInstance`` с параметрами из [init]. Инстанс необходим
+         * для создания всех последующих Vulkan-объектов.
+         *
+         * @param init лямбда, возвращающая [KVkInstanceCreateInfo] с параметрами создания.
+         * @return созданный инстанс.
+         */
         context(stack: MemoryStack)
         fun vkCreateInstance(
             init: context(MemoryStack) () -> KVkInstanceCreateInfo
@@ -85,6 +134,13 @@ class KVkInstance(handle: Long, ci: VkInstanceCreateInfo, val allocator: VkAlloc
     }
 }
 
+/**
+ * Перечисляет все слои, доступные для Vulkan-инстанса.
+ *
+ * Вызывает ``vkEnumerateInstanceLayerProperties``.
+ *
+ * @return буфер со свойствами доступных слоёв.
+ */
 context(stack: MemoryStack)
 fun vkGetInstanceLayerProperties(): VkLayerProperties.Buffer {
     val layerCount = stack.ints(0)
@@ -94,8 +150,19 @@ fun vkGetInstanceLayerProperties(): VkLayerProperties.Buffer {
     return availableLayers
 }
 
+/**
+ * Коллекция физических устройств, полученная через ``vkEnumeratePhysicalDevices``.
+ *
+ * @property ppPhysicalDevices буфер нативных хэндлов физических устройств.
+ */
 @JvmInline
 value class PhysicalDevices(val ppPhysicalDevices: PointerBuffer) {
+    /**
+     * Проходит по всем устройствам, создавая [KVkPhysicalDevice] для каждого.
+     *
+     * @param instance Vulkan-инстанс, к которому привязаны устройства.
+     * @param processor обработчик, вызываемый для каждого устройства.
+     */
     inline fun iterate(instance: VkInstance, processor: (KVkPhysicalDevice) -> Unit) {
         for (i in 0 until ppPhysicalDevices.capacity()) {
             val device = KVkPhysicalDevice(ppPhysicalDevices[i], instance)

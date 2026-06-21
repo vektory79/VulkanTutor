@@ -20,7 +20,19 @@ import org.lwjgl.vulkan.VkSurfaceCapabilitiesKHR
 import org.lwjgl.vulkan.VkSurfaceFormatKHR
 import java.nio.IntBuffer
 
+/**
+ * Физическое Vulkan-устройство, представляющее доступный GPU.
+ *
+ * Получается через [KVkInstance.getPhysicalDevices]. Перед созданием логического
+ * устройства ([KVkDevice]) приложение проверяет свойства физического устройства:
+ * семейства очередей, расширения, поддержку поверхности — и выбирает подходящее GPU.
+ */
 class KVkPhysicalDevice(handle: Long, instance: VkInstance) : VkPhysicalDevice(handle, instance) {
+    /**
+     * Свойства всех семейств очередей, доступных на этом GPU.
+     *
+     * Вызывает ``vkGetPhysicalDeviceQueueFamilyProperties`` для получения списка.
+     */
     context(stack: MemoryStack)
     val queueFamilyProperties: KVkQueueFamilyPropertiesArray
         get() {
@@ -31,6 +43,11 @@ class KVkPhysicalDevice(handle: Long, instance: VkInstance) : VkPhysicalDevice(h
             return KVkQueueFamilyPropertiesArray(queueFamilies)
         }
 
+    /**
+     * Расширения, доступные на этом устройстве.
+     *
+     * Вызывает ``vkEnumerateDeviceExtensionProperties`` для устройства.
+     */
     context(stack: MemoryStack)
     val availableExtensions: KVkExtensionPropertiesArray
         get() {
@@ -42,6 +59,15 @@ class KVkPhysicalDevice(handle: Long, instance: VkInstance) : VkPhysicalDevice(h
             return KVkExtensionPropertiesArray(availableExtensions)
         }
 
+    /**
+     * Проверяет, поддерживает ли семейство очередей вывод на поверхность.
+     *
+     * Вызывает ``vkGetPhysicalDeviceSurfaceSupportKHR``.
+     *
+     * @param pipelineFamilyId индекс семейства очередей.
+     * @param surface поверхность для вывода.
+     * @return `true`, если семейство поддерживает презентацию на указанной поверхности.
+     */
     fun surfaceSupport(pipelineFamilyId: Int, surface: KVkSurface): Boolean {
         stackPush {
             val presentSupport: IntBuffer = ints(VK_FALSE)
@@ -55,6 +81,14 @@ class KVkPhysicalDevice(handle: Long, instance: VkInstance) : VkPhysicalDevice(h
         }
     }
 
+    /**
+     * Возвращает возможности поверхности (размеры, границы, максимальное количество изображений).
+     *
+     * Вызывает ``vkGetPhysicalDeviceSurfaceCapabilitiesKHR``.
+     *
+     * @param surface поверхность для запроса.
+     * @return возможности поверхности.
+     */
     context(stack: MemoryStack)
     fun getSurfaceCapabilities(surface: KVkSurface): KVkSurfaceCapabilitiesKHR {
         val capabilities = VkSurfaceCapabilitiesKHR.malloc(stack)
@@ -62,6 +96,14 @@ class KVkPhysicalDevice(handle: Long, instance: VkInstance) : VkPhysicalDevice(h
         return KVkSurfaceCapabilitiesKHR(capabilities)
     }
 
+    /**
+     * Возвращает форматы пикселей, поддерживаемые поверхностью.
+     *
+     * Вызывает ``vkGetPhysicalDeviceSurfaceFormatsKHR``.
+     *
+     * @param surface поверхность для запроса.
+     * @return массив поддерживаемых форматов или `null`, если форматов нет.
+     */
     context(stack: MemoryStack)
     fun getSurfaceFormats(surface: KVkSurface): KVkSurfaceFormatKHRArray? {
         val count: IntBuffer = stack.ints(0)
@@ -75,6 +117,14 @@ class KVkPhysicalDevice(handle: Long, instance: VkInstance) : VkPhysicalDevice(h
         return null
     }
 
+    /**
+     * Возвращает режимы презентации, поддерживаемые поверхностью.
+     *
+     * Вызывает ``vkGetPhysicalDeviceSurfacePresentModesKHR``.
+     *
+     * @param surface поверхность для запроса.
+     * @return буфер с режимами презентации или `null`, если режимов нет.
+     */
     context(stack: MemoryStack)
     fun getPhysicalDeviceSurfacePresentModes(surface: KVkSurface): IntBuffer? {
         val count: IntBuffer = stack.ints(0)

@@ -13,33 +13,64 @@ import org.lwjgl.vulkan.VkDeviceQueueGlobalPriorityCreateInfoEXT
 import org.lwjgl.vulkan.VkDeviceQueueGlobalPriorityCreateInfoKHR
 import java.nio.FloatBuffer
 
+/**
+ * Kotlin-обёртка над [VkDeviceQueueCreateInfo].
+ *
+ * Описывает очередь, которую приложение запрашивает при создании логического устройства.
+ * Содержит индекс семейства очередей, количество очередей и их приоритеты.
+ *
+ * @property struct LWJGL-структура [VkDeviceQueueCreateInfo].
+ */
 @VkStruct
 @JvmInline
 value class KVkDeviceQueueCreateInfo(override val struct: VkDeviceQueueCreateInfo) :
     KVkStruct<VkDeviceQueueCreateInfo> {
+    /**
+     * Указатель на следующую структуру в цепочке.
+     */
     var pNext: Long
         get() = struct.pNext()
         set(value) {
             struct.pNext(value)
         }
+
+    /**
+     * Устанавливает pNext на [VkDeviceQueueGlobalPriorityCreateInfoEXT].
+     */
     fun pNext(value: VkDeviceQueueGlobalPriorityCreateInfoEXT) = struct.pNext(value)
 
+    /**
+     * Устанавливает pNext на [VkDeviceQueueGlobalPriorityCreateInfoKHR].
+     */
     fun pNext(value: VkDeviceQueueGlobalPriorityCreateInfoKHR) = struct.pNext(value)
+
+    /**
+     * Флаги создания очереди (зарезервировано для будущего использования).
+     */
     var flags: Int
         get() = struct.flags()
         set(value) {
             struct.flags(value)
         }
 
+    /**
+     * Индекс семейства очередей GPU, из которого создаются очереди.
+     */
     var queueFamilyIndex: Int
         get() = struct.queueFamilyIndex()
         set(value) {
             struct.queueFamilyIndex(value)
         }
 
+    /**
+     * Количество очередей в этом семействе.
+     */
     val queueCount: Int
         get() = struct.queueCount()
 
+    /**
+     * Массив приоритетов для каждой очереди (0.0 — низший, 1.0 — высший).
+     */
     var pQueuePriorities: FloatBuffer
         get() = struct.pQueuePriorities()
         set(value) {
@@ -47,6 +78,14 @@ value class KVkDeviceQueueCreateInfo(override val struct: VkDeviceQueueCreateInf
         }
 
     companion object {
+        /**
+         * Создаёт и инициализирует [KVkDeviceQueueCreateInfo] на [MemoryStack].
+         *
+         * Устанавливает sType в [VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO].
+         *
+         * @param init лямбда для инициализации полей структуры.
+         * @return инициализированная структура.
+         */
         context(stack: MemoryStack)
         @VkStruct
         fun vkDeviceQueueCreateInfo(init: KVkDeviceQueueCreateInfo.() -> Unit): KVkDeviceQueueCreateInfo =
@@ -58,6 +97,12 @@ value class KVkDeviceQueueCreateInfo(override val struct: VkDeviceQueueCreateInf
     }
 }
 
+/**
+ * Коллектор инициализаторов для массива [KVkDeviceQueueCreateInfo].
+ *
+ * Используется с [KVkDeviceQueueCreateInfoArray.vkDeviceQueueCreateInfoArray]
+ * для поэлементной инициализации массива структур создания очередей.
+ */
 class KVkDeviceQueueCreateInfoInitCollector : KVkStructArrayInitCollector<
     VkDeviceQueueCreateInfo,
     VkDeviceQueueCreateInfo.Buffer,
@@ -65,6 +110,14 @@ class KVkDeviceQueueCreateInfoInitCollector : KVkStructArrayInitCollector<
     KVkDeviceQueueCreateInfoArray
     >()
 
+/**
+ * Массив структур [KVkDeviceQueueCreateInfo] для создания нескольких семейств очередей.
+ *
+ * Оборачивает [VkDeviceQueueCreateInfo.Buffer] и предоставляет доступ к элементам
+ * через Kotlin-обёртки.
+ *
+ * @property struct LWJGL-буфер [VkDeviceQueueCreateInfo.Buffer].
+ */
 @VkStruct
 @JvmInline
 value class KVkDeviceQueueCreateInfoArray(override val struct: VkDeviceQueueCreateInfo.Buffer) :
@@ -80,30 +133,52 @@ value class KVkDeviceQueueCreateInfoArray(override val struct: VkDeviceQueueCrea
 
     override fun wrap(struct: VkDeviceQueueCreateInfo): KVkDeviceQueueCreateInfo = KVkDeviceQueueCreateInfo(struct)
 
+    /**
+     * Указатель на следующую структуру в цепочке (для текущего элемента по позиции).
+     */
     var pNext: Long
         get() = struct.pNext()
         set(value) {
             struct.pNext(value)
         }
 
+    /**
+     * Устанавливает pNext на [VkDeviceQueueGlobalPriorityCreateInfoEXT].
+     */
     fun pNext(value: VkDeviceQueueGlobalPriorityCreateInfoEXT) = struct.pNext(value)
+
+    /**
+     * Устанавливает pNext на [VkDeviceQueueGlobalPriorityCreateInfoKHR].
+     */
     fun pNext(value: VkDeviceQueueGlobalPriorityCreateInfoKHR) = struct.pNext(value)
 
+    /**
+     * Флаги создания очереди.
+     */
     var flags: Int
         get() = struct.flags()
         set(value) {
             struct.flags(value)
         }
 
+    /**
+     * Индекс семейства очередей.
+     */
     var queueFamilyIndex: Int
         get() = struct.queueFamilyIndex()
         set(value) {
             struct.queueFamilyIndex(value)
         }
 
+    /**
+     * Количество очередей в семействе.
+     */
     val queueCount: Int
         get() = struct.queueCount()
 
+    /**
+     * Массив приоритетов очередей.
+     */
     var pQueuePriorities: FloatBuffer
         get() = struct.pQueuePriorities()
         set(value) {
@@ -111,6 +186,14 @@ value class KVkDeviceQueueCreateInfoArray(override val struct: VkDeviceQueueCrea
         }
 
     companion object {
+        /**
+         * Создаёт массив [KVkDeviceQueueCreateInfo] на [MemoryStack].
+         *
+         * Каждый элемент инициализируется через [init] коллектор.
+         *
+         * @param init лямбда для добавления элементов в коллектор.
+         * @return заполненный массив структур.
+         */
         context(stack: MemoryStack)
         @VkStruct
         fun vkDeviceQueueCreateInfoArray(
